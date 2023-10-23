@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import Sell from "../classes/Sell";
+import Sell from "../components/Sell";
 import { config } from "../../index.js";
 import { source } from "../../index.js";
 
@@ -15,7 +15,6 @@ export default class Gamescene extends Phaser.Scene {
     this.createButtons();
     this.createSells();
     this.setEvents();
-    this.setCursor();
   }
 
   createBackground() {
@@ -36,7 +35,7 @@ export default class Gamescene extends Phaser.Scene {
         style
       )
       .setOrigin(0.5)
-      .setInteractive();
+      .setInteractive({cursor: 'pointer'});
 
     this.buttonO = this.add
       .text(
@@ -46,34 +45,37 @@ export default class Gamescene extends Phaser.Scene {
         style
       )
       .setOrigin(0.5)
-      .setInteractive();
+      .setInteractive({cursor: 'pointer'});
   }
 
-  setCursor() {
-    this.buttonX.setInteractive({cursor: 'pointer'});
-    this.buttonO.setInteractive({cursor: 'pointer'});
-  }
+
 
   createSells() {
     this.sells = [];
     let positions = this.getSellsPositions();
 
-    for (const position of positions) {
-      this.sells.push(new Sell(this, position));
+    // for (const position of positions) {
+    //   this.sells.push(new Sell(this, position));
+    //   new Sell(this, position).name == false;
+    // }
+
+    for (let i = 0; i < positions.length; i++) {
+      this.sells[i] = new Sell(this, positions[i]);
+      this.sells[i].name = false; //Отмечаем закрытые ячейки
     }
 
     this.add
       .sprite(
         this.cameras.main.centerX - 70,
         this.cameras.main.centerY - 325,
-        "sell2"
+        "img10"
       )
       .setOrigin(0.5, 0.5);
     this.add
       .sprite(
         this.cameras.main.centerX + 200,
         this.cameras.main.centerY - 325,
-        "sell3"
+        "img20"
       )
       .setOrigin(0.5, 0.5);
 
@@ -83,39 +85,58 @@ export default class Gamescene extends Phaser.Scene {
   onCardClicked(pointer, sell) {
     let el;
 
-    if (sell.y > 50) {
+    if (sell.y >= this.sells[0].y) {
       sell.hideSell();
-      if (this.isStar) {
-        if (this.store.length) {
-          this.add
-            .sprite(
-              this.store[this.store.length - 1].x,
-              this.store[this.store.length - 1].y,
-              "sell3"
-            )
-            .setOrigin(0, 0);
-        }
-        el = this.add.sprite(sell.x, sell.y, "sell20").setOrigin(0, 0);
-        this.isStar = false;
-      } else {
-        if (this.store.length) {
-          this.add
-            .sprite(
-              this.store[this.store.length - 1].x,
-              this.store[this.store.length - 1].y,
-              "sell2"
-            )
-            .setOrigin(0, 0);
-        }
 
-        el = this.add.sprite(sell.x, sell.y, "sell30").setOrigin(0, 0);
+      if (this.isStar) { //для крестика
+        // =======================================================================
+        //"обесцвечиваем" предыдущий нолик
+        if (this.store.length) {
+          this.add
+          .sprite(
+            this.store[this.store.length - 1].x,
+            this.store[this.store.length - 1].y,
+            "img20"
+            )
+            .setOrigin(0, 0);
+          }
+          // =======================================================================
+        el = this.add.sprite(sell.x, sell.y, "img1").setOrigin(0, 0);
+        this.isStar = false;
+      } else { //для нолика
+         // =======================================================================
+        //"обесцвечиваем" предыдущий крестик
+        if (this.store.length) {
+          this.add
+            .sprite(
+              this.store[this.store.length - 1].x,
+              this.store[this.store.length - 1].y,
+              "img10"
+            )
+            .setOrigin(0, 0);
+        }
+        // =======================================================================
+
+        el = this.add.sprite(sell.x, sell.y, "img2").setOrigin(0, 0);
 
         this.isStar = true;
       }
-      this.store.length = 0;
+
       this.store.push(el);
-      //console.log(this.store[this.store.length - 1].x);
-      console.log(this.store);
+    // =======================================================================
+    for (let i = 0; i < this.sells.length; i++) {
+      if (this.sells[i].x == sell.x && this.sells[i].y == sell.y) {
+        this.sells[i].name = true; //Отмечаем открытые ячейки
+      }      
+    }
+    // =======================================================================
+    
+      // console.log(sell.x + '  ' + sell.y ) // координаты нажатой ячейки
+       console.log(this.store); // массив с нажатыми ячейками
+       console.log(this.store[0].texture.key); // тип фигуры в ячейке массива с нажатыми ячейками
+       console.log(this.store[0].x + '  ' + this.store[0].y);
+      // console.log(this.sells[0].name); // true - ячейка была выбрана
+      
     }
   }
 
@@ -156,7 +177,7 @@ export default class Gamescene extends Phaser.Scene {
         });
       }
     }
-    console.log(positions);
+    //console.log(positions);
     return positions; //Phaser.Utils.Array.Shuffle(positions); перемешивание массива;
   }
 }
