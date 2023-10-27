@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import bgJpg from "../../assets/sprites/background.jpg";
-import { config } from "../..";
 
 
 export default class BootScene extends Phaser.Scene {

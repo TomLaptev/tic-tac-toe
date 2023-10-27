@@ -7,6 +7,7 @@ export default class Arrays {
     this.arr2 = []; //вертикальный массив
     this.arr3 = []; //диагон. массив (лево-верх -> право-низ)
     this.arr4 = []; //диагон. массив (право-верх -> лево-низ)
+    this.arraysCell = [this.arr1, this.arr2, this.arr3, this.arr4]; //общий массив
 
     for (let i = 0; i < param2.length; i++) {
       if (param2[i].x == param1.x && param2[i].y == param1.y) {
@@ -57,137 +58,6 @@ export default class Arrays {
       }
     }
 
-/*       //===================================================================================
-    // При ходе крестиков   ==== arr1 =====
-    // заменяем крестики-нолики-свободные ячейки на
-    // 1 - 7 - 0
-    for (let i = 0; i < this.arr1.length; i++) {
-      if (param1.name == "img1") {
-        if (this.arr1[i].name == "img1") {
-          this.arr1.splice(i, 1, 1);
-        }
-        if (this.arr1[i].name == "img2") {
-          this.arr1.splice(i, 1, 7);
-        }
-        if (this.arr1[i].name == false) {
-          this.arr1.splice(i, 1, 0);
-        }
-      }
-      // При ходе ноликов
-      // заменяем нолики-крестики-свободные ячейки на
-      // 1 - 7 - 0
-      if (param1.name == "img2") {
-        if (this.arr1[i].name == "img2") {
-          this.arr1.splice(i, 1, 1);
-        }
-        if (this.arr1[i].name == "img1") {
-          this.arr1.splice(i, 1, 7);
-        }
-        if (this.arr1[i].name == false) {
-          this.arr1.splice(i, 1, 0);
-        }
-      }
-    }
-    //===================================================================================
-    // При ходе крестиков   ==== arr2 =====
-    // заменяем крестики-нолики-свободные ячейки на
-    // 1 - 7 - 0
-   for (let i = 0; i < this.arr2.length; i++) {
-      if (param1.name == "img1") {
-        if (this.arr2[i].name == "img1") {
-          this.arr2.splice(i, 1, 1);
-        }
-        if (this.arr2[i].name == "img2") {
-          this.arr2.splice(i, 1, 7);
-        }
-        if (this.arr2[i].name == false) {
-          this.arr2.splice(i, 1, 0);
-        }
-      }
-
-      // При ходе ноликов
-      // заменяем нолики-крестики-свободные ячейки на
-      // 1 - 7 - 0
-      if (param1.name == "img2") {
-        if (this.arr2[i].name == "img2") {
-          this.arr2.splice(i, 1, 1);
-        }
-        if (this.arr2[i].name == "img1") {
-          this.arr2.splice(i, 1, 7);
-        }
-        if (this.arr2[i].name == false) {
-          this.arr2.splice(i, 1, 0);
-        }
-      }
-    }
-    //===================================================================================
-    // При ходе крестиков   ==== arr3 =====
-    // заменяем крестики-нолики-свободные ячейки на
-    // 1 - 7 - 0
-    for (let i = 0; i < this.arr3.length; i++) {
-      if (param1.name == "img1") {
-        if (this.arr3[i].name == "img1") {
-          this.arr3.splice(i, 1, 1);
-        }
-        if (this.arr3[i].name == "img2") {
-          this.arr3.splice(i, 1, 7);
-        }
-        if (this.arr3[i].name == false) {
-          this.arr3.splice(i, 1, 0);
-        }
-      }
-
-      // При ходе ноликов
-      // заменяем нолики-крестики-свободные ячейки на
-      // 1 - 7 - 0
-      if (param1.name == "img2") {
-        if (this.arr3[i].name == "img2") {
-          this.arr3.splice(i, 1, 1);
-        }
-        if (this.arr3[i].name == "img1") {
-          this.arr3.splice(i, 1, 7);
-        }
-        if (this.arr3[i].name == false) {
-          this.arr3.splice(i, 1, 0);
-        }
-      }
-    }
-    //===================================================================================
-    // При ходе крестиков   ==== arr4 =====
-    // заменяем крестики-нолики-свободные ячейки на
-    // 1 - 7 - 0
-    for (let i = 0; i < this.arr4.length; i++) {
-      if (param1.name == "img1") {
-        if (this.arr4[i].name == "img1") {
-          this.arr4.splice(i, 1, 1);
-        }
-        if (this.arr4[i].name == "img2") {
-          this.arr4.splice(i, 1, 7);
-        }
-        if (this.arr4[i].name == false) {
-          this.arr4.splice(i, 1, 0);
-        }
-      }
-
-      // При ходе ноликов
-      // заменяем нолики-крестики-свободные ячейки на
-      // 1 - 7 - 0
-      if (param1.name == "img2") {
-        if (this.arr4[i].name == "img2") {
-          this.arr4.splice(i, 1, 1);
-        }
-        if (this.arr4[i].name == "img1") {
-          this.arr4.splice(i, 1, 7);
-        }
-        if (this.arr4[i].name == false) {
-          this.arr4.splice(i, 1, 0);
-        }
-      }
-    } 
-  */ 
-
     this.Step = Math.ceil(param3.length / 2);
-
-    return this.arr1, this.arr2, this.arr3, this.arr4, this.Step;
   }
 }

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import Sell from "../components/Sell";
+import Cell from "../components/Cell";
 import Arrays from "../components/Arrays";
 import { config } from "../../index.js";
 import { source } from "../../index.js";
@@ -12,11 +12,13 @@ export default class Gamescene extends Phaser.Scene {
   create() {
     this.add.sprite(0, 0, "bg").setOrigin(0);
     this.createButtons();
-    this.createSells();
-    //this.adapTemplate();
-    //this.setEvents();
+    this.createCells();
+    this.setEvents();
+    //this.createTimer();
     this.store = [];
     this.isStar = true;
+    this.isFinish = true;
+    this.isZero = false;
   }
 
   createButtons() {
@@ -46,13 +48,13 @@ export default class Gamescene extends Phaser.Scene {
       .setInteractive({ cursor: "pointer" });
   }
 
-  createSells() {
-    this.sells = [];
-    let positions = this.getSellsPositions();
+  createCells() {
+    this.cells = [];
+    let positions = this.getCellsPositions();
 
     for (let i = 0; i < positions.length; i++) {
-      this.sells[i] = new Sell(this, positions[i]);
-      this.sells[i].name = 0; //Отмечаем закрытые(свободные) ячейки
+      this.cells[i] = new Cell(this, positions[i]);
+      this.cells[i].name = 0; //Отмечаем закрытые(свободные) ячейки
     }
 
     this.add
@@ -69,18 +71,11 @@ export default class Gamescene extends Phaser.Scene {
         "img20"
       )
       .setOrigin(0.5, 0.5);
-
-    this.input.on("gameobjectdown", this.onCardClicked, this);
   }
 
-  // adapTemplate(){
-
-  // }
-
-  onCardClicked(pointer, sell) {
-    if (sell.y >= this.sells[0].y) {
-      sell.hideSell();
-
+  onCardClicked(pointer, cell) {
+    if (this.isFinish && cell.y >= this.cells[0].y) {
+      cell.hideCell();
       let el;
 
       //для крестика
@@ -95,8 +90,7 @@ export default class Gamescene extends Phaser.Scene {
             )
             .setOrigin(0, 0);
         }
-
-        el = this.add.sprite(sell.x, sell.y, "img1").setOrigin(0, 0);
+        el = this.add.sprite(cell.x, cell.y, "img1").setOrigin(0, 0);
         this.isStar = false;
       } else {
         //для нолика
@@ -111,109 +105,97 @@ export default class Gamescene extends Phaser.Scene {
             .setOrigin(0, 0);
         }
 
-        el = this.add.sprite(sell.x, sell.y, "img2").setOrigin(0, 0);
-
+        el = this.add.sprite(cell.x, cell.y, "img2").setOrigin(0, 0);
         this.isStar = true;
       }
 
       this.store.push(el);
+      this.arrays = new Arrays(cell, this.cells, this.store);
+      this.arrays.createArrays(cell, this.cells, this.store);
 
-      this.arrays = new Arrays(sell, this.sells, this.store);
-
-      this.arrays.createArrays(sell, this.sells, this.store);
-
-      //console.log(this.arrays.arr1);
-      this.arr1 = this.arrays.arr1.slice();
-      console.log(this.arr1);
-
-   /*    for (let i = 0; i < this.arr1.length; i++) {
-        if (sell.name == "img1" && this.arr1[i].name == "img1") {this.arr1[i].name = 1;}
-        if (sell.name == "img2" && this.arr1[i].name == "img2") this.arr1[i].name = 1;
-      } */
-
-      console.log(this.arr1);
       this.sh50 = [1, 1, 1, 1, 1];
-      let sh50 = []; //this._sh50.slice();
-      for (let i = 0; i < this.sh50.length; i++) {        
-        if (sell.name == "img1") {
-          if ( this.sh50[i]) sh50[i] = "img1";          
+      let sh50 = [];
+      for (let i = 0; i < this.sh50.length; i++) {
+        if (cell.name == "img1") {
+          if (this.sh50[i]) sh50[i] = "img1";
         }
-        if (sell.name == "img2") {
-          if ( this.sh50[i]) sh50[i] = "img2";          
+        if (cell.name == "img2") {
+          if (this.sh50[i]) sh50[i] = "img2";
         }
       }
-      console.log(this.sh50);
-      console.log("--------------");
-      //============================================================================
+     
       let winLine = [];
       let count;
       let k;
-      outer: while (this.arr1.length >= this.sh50.length) {
-        count = 0;
-        k = 0;
-        for (let i = sh50.length; i > 0; i--) {
-          if (sh50[i - 1] == this.arr1[this.arr1.length - 1 - k].name) {
-            winLine.push(this.arr1[this.arr1.length - 1 - k]);
-            ++count;
-            k++;
-            if (count == 5) {
-              console.log("Ура! Победа");
-              
-              while (winLine.length > 0) {
+
+      let arrCell = this.arrays.arraysCell.slice();
+      for (let j = 0; j < arrCell.length; j++) {
+        outer: while (arrCell[j].length >= this.sh50.length) {
+          winLine.length = 0;
+          count = 0;
+          k = 0;
+          for (let i = sh50.length; i > 0; i--) {
+            if (sh50[i - 1] == arrCell[j][arrCell[j].length - 1 - k].name) {
+              winLine.push(arrCell[j][arrCell[j].length - 1 - k]);
+              ++count;
+              k++;
+              if (count == 5) {
+                console.log("Ура! Победа");
+                //console.log(winLine.length);
+                this.isFinish = false;
+                while (winLine.length > 0) {
                   this.add
                     .sprite(
                       winLine[winLine.length - 1].x,
                       winLine[winLine.length - 1].y,
-                      sell.name
+                      cell.name
                     )
-                    .setOrigin(0, 0); 
-            
-                  winLine.length--
+                    .setOrigin(0, 0);
+
+                  winLine.length--;
+                }
+                this.store.length = 0;
+                break outer;
               }
-              this.store.length = 0;
-              break outer;
             }
           }
+          arrCell[j].pop();
         }
-        console.log(count);
-
-        this.arr1.pop();
       }
     }
   }
-  // setEvents() {
-  //   this.buttonX.on("pointerdown", this.ActionButtonX, this);
-  //   this.buttonO.on("pointerdown", this.ActionButtonO, this);
-
-  // }
+  setEvents() {
+    this.input.on("gameobjectdown", this.onCardClicked, this);
+    this.buttonX.on("pointerdown", this.ActionButtonX, this);
+    this.buttonO.on("pointerdown", this.ActionButtonO, this);
+  }
 
   ActionButtonX() {
-    console.log("Button1");
+    this.scene.restart();
   }
   ActionButtonO() {
-    console.log("Button2");
+    this.isZero = true;
+    this.isStar = true;
+    this.store.length = 0;
+    this.isFinish = true;
+    this.createCells()
+    this.onCardClicked(this, this.cells[112]);
   }
-
-  getSellsPositions() {
+  
+  getCellsPositions() {
     let positions = [];
-    // let sellTexture = this.textures.get("sell1").getSourceImage(); // содержит данные о размерах image
-    let sellWidth = 40; //(sellTexture.width + 4) / 5;
-    let sellHeight = 40; //(sellTexture.height + 4) / 5;
-    let offsetX = (config.width - sellWidth * source.cols) / 2;
+    let offsetX = (config.width - source.cellWidth * source.cols) / 2;
     let offsetY =
-      (config.height - sellHeight * source.rows) / 2 + sellHeight * 1;
+      (config.height - source.cellHeight * source.rows) / 2 + source.cellHeight * 1;
 
-    //let id = 0;
     for (let row = 0; row < source.rows; row++) {
       for (let col = 0; col < source.cols; col++) {
         positions.push({
-          //delay: ++id * 1,
-          x: offsetX + col * sellWidth,
-          y: offsetY + row * sellHeight,
+          x: offsetX + col * source.cellWidth,
+          y: offsetY + row * source.cellHeight,
         });
       }
     }
-    //console.log(positions);
-    return positions; //Phaser.Utils.Array.Shuffle(positions); перемешивание массива;
+    return positions; 
   }
 }

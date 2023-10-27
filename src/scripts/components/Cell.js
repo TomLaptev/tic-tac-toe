@@ -1,13 +1,16 @@
-export default class Sell extends Phaser.GameObjects.Sprite {
+import { NONE } from "phaser";
+
+export default class Cell extends Phaser.GameObjects.Sprite {
   constructor(scene, position) {
     super(scene, position.x, position.y, "img");
     this.scene = scene;
     this.setOrigin(0, 0);
     this.scene.add.existing(this);
-    this.setInteractive({cursor: 'pointer'});
+    this.setInteractive();
+    
   }
 
-  hideSell() {
+  hideCell() {
     this.scene.tweens.add({
       targets: this,
       scaleX: 0,
@@ -16,6 +19,4 @@ export default class Sell extends Phaser.GameObjects.Sprite {
      
     });
   }
-
- 
 }

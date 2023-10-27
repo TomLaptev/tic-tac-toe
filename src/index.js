@@ -18,8 +18,8 @@ export const config = {
 export let source = {
   rows: 15,
   cols: 15,
-  sells: [1, 2, 3, 4, 5],
-  timeout: 0,  
+  cellWidth: 40,
+  cellHeight: 40,  
 }
 
 const game = new Phaser.Game(config);
