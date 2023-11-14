@@ -8,16 +8,8 @@ export default class Cell extends Phaser.GameObjects.Sprite {
     this.setInteractive();
     this.id = id;
     //this.number = number;
-    //this.setInteractive();
+    this.setInteractive();
   }
 
 
-  hideCell() {
-    this.scene.tweens.add({
-      targets: this,
-      scaleX: 0,
-      ease: "Linear",
-      duration: 0,
-    });
-  }
 }

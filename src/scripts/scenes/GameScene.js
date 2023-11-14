@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 import Cell from "../components/Cell";
 import Arrays from "../components/Arrays";
-import { config } from "../../index.js";
-import { source } from "../../index.js";
-import templates from "../components/templates.json";
+import { config, source } from "../../index.js";
+import template_X from "../components/template_X.json";
+import template_O from "../components/template_O.json";
+import { name } from "file-loader";
 
 export default class Gamescene extends Phaser.Scene {
   constructor() {
@@ -15,12 +16,9 @@ export default class Gamescene extends Phaser.Scene {
     this.createButtons();
     this.createCells();
     this.setEvents();
-
     this.store = [];
-    this.isCross = true;
     this.isFinish = false;
     this.btn0WasPressed = false;
-    //cellsFieldGA = [];
   }
 
   createButtons() {
@@ -56,7 +54,7 @@ export default class Gamescene extends Phaser.Scene {
 
     for (let i = 0; i < positions.length; i++) {
       this.cells[i] = new Cell(this, positions[i], i);
-      this.cells[i].name = 0; //Отмечаем закрытые(свободные) ячейки
+      this.cells[i].name = false; //Отмечаем закрытые(свободные) ячейки
     }
 
     this.add
@@ -76,83 +74,47 @@ export default class Gamescene extends Phaser.Scene {
   }
 
   onCellClicked(pointer, cell) {
-    if (!this.isFinish && cell.y >= this.cells[0].y) {
-      cell.hideCell();
-      let el;
+    if (cell && cell.name === false && cell.y >= this.cells[0].y ) {
       //для крестика "обесцвечиваем" предыдущий нолик
-      if (this.isCross) {
+      if (this.store.length % 2 == 0) {
         if (this.store.length > 0) {
           this.add
-            .sprite(
-              this.store[this.store.length - 1].x,
-              this.store[this.store.length - 1].y,
-              "img20"
-            )
+            .sprite(this.store.at(-1).x, this.store.at(-1).y, "img20")
             .setOrigin(0, 0);
         }
-        el = this.add.sprite(cell.x, cell.y, "img1").setOrigin(0, 0);
-        this.isCross = false;
-        cell.name = "img1";
+        this.add.sprite(cell.x, cell.y, "img1").setOrigin(0, 0);
+        cell.name = 1;
       } else {
         //для нолика "обесцвечиваем" предыдущий крестик
-        if (this.store.length) {
+        if (this.store.length % 2) {
           this.add
-            .sprite(
-              this.store[this.store.length - 1].x,
-              this.store[this.store.length - 1].y,
-              "img10"
-            )
+            .sprite(this.store.at(-1).x, this.store.at(-1).y, "img10")
             .setOrigin(0, 0);
         }
 
-        el = this.add.sprite(cell.x, cell.y, "img2").setOrigin(0, 0);
-        this.isCross = true;
-        cell.name = "img2";
+        this.add.sprite(cell.x, cell.y, "img2").setOrigin(0, 0);
+        cell.name = 0;
       }
+      this.store.push(cell);
 
-      this.store.push(el);
+      // Проверка наличия победителя
 
-      // Определяем номер хода(одинаков для обеих сторон)
-      this.Step = Math.ceil(this.store.length / 2);
-
-      // Запускаем ф-ю createArrays() в кл. Arrays и получаем массив,
+      // Запускаем createArrays() в кл. Arrays и получаем массив,
       // для ячейки cell, содержащий в себе 4 массива
-      let a = new Arrays(cell, this.cells);
-      let arrCell = a.createArrays();
-
-      this.store[this.store.length - 1].name = cell.name;
-      // this.store - массив с нажатыми ячейками
-      //   cell.x, cell.y - координаты нажатой ячейки
-      //   this.cells[i].name = false - ячейка свободна
-      //   this.cells[i].name = img1 - крестик
-      //   this.cells[i].name = img2 - нолик
-
-      // Подключаем templates.json
-      this.templates = templates.templatesStore;
-
-      // Проверка наличия линии победителя
-      let winningTemplate = [1, 1, 1, 1, 1];
-      for (let i = 0; i < 5; i++) {
-        if (cell.name == "img1") {
-          winningTemplate[i] = "img1";
-        }
-        if (cell.name == "img2") {
-          winningTemplate[i] = "img2";
-        }
-      }
+      let testWinKit = new Arrays(cell, this.cells).createArrays();
 
       let winLine = [];
       let count;
-      for (let i = 1; i < arrCell.length; i++) {
-        outer: while (arrCell[i].length >= winningTemplate.length) {
+      let symbol = cell.name == 1 ? (symbol = "img1") : (symbol = "img2");
+      for (let i = 1; i < testWinKit.length; i++) {
+        outer: while (testWinKit[i].length >= 5) {
           winLine.length = 0;
           count = 0;
-          for (let j = winningTemplate.length; j > 0; j--) {
+          for (let j = 0; j < 5; j++) {
             if (
-              winningTemplate[j - 1] ==
-              arrCell[i][arrCell[i].length - 1 - count].name
+              testWinKit[i][testWinKit[i].length - 1 - count].name === cell.name
             ) {
-              winLine.push(arrCell[i][arrCell[i].length - 1 - count]);
+              winLine.push(testWinKit[i][testWinKit[i].length - 1 - count]);
               count++;
               if (count == 5) {
                 console.log("Ура! Победа");
@@ -162,7 +124,7 @@ export default class Gamescene extends Phaser.Scene {
                     .sprite(
                       winLine[winLine.length - 1].x,
                       winLine[winLine.length - 1].y,
-                      cell.name
+                      symbol
                     )
                     .setOrigin(0, 0);
 
@@ -173,149 +135,281 @@ export default class Gamescene extends Phaser.Scene {
               }
             }
           }
-          arrCell[i].pop();
+          testWinKit[i].pop();
         }
       }
+    } 
+     //====================================
+
+    if (!this.isFinish && this.store.length > 0) {
+      this.chooseFirstStepGA();
     }
-    console.log("====================================");
-    this.chooseFirstStepGA();
   }
 
-  //======================================================================================
-
   chooseFirstStepGA() {
-    if (this.store.length == 1 && !this.btn0WasPressed) {
-      let firstStep = this.chooseIndex(
-        this.store[this.store.length - 1].x,
-        this.store[this.store.length - 1].y
-      );
-      let centralCell = Math.floor(this.cells.length / 2);
+    this.template_X = template_X.templatesStore;
+    this.template_O = template_O.templatesStore;
+    let correctionX = 0;
+    let correctionY;
+    let indexPosition;
 
-      if (firstStep != centralCell) {
+    if (this.store.at(-1).x < this.cells[0].x + 4 * source.cellWidth) {
+      correctionX = 1;
+    } else if (
+      this.store.at(-1).x >
+      this.cells.at(-1).x - 4 * source.cellWidth
+    ) {
+      correctionX = -1;
+    }
+    if (
+      this.store.at(-1).y <
+      this.cells[0].y + Math.ceil(source.rows / 2) * source.cellHeight
+    ) {
+      correctionY = 1;
+    } else correctionY = -1;
 
-        let stepY = this.cells[firstStep].y;
-        let stepX = this.cells[firstStep].x;
-
-        if (
-          stepY < this.cells[this.cells.length - 1].y - 1 * source.cellHeight &&
-          stepY > this.cells[centralCell].y
-        ) {
-          stepY -= source.cellHeight;
-        } else if (
-          stepY > this.cells[0].y + 1 * source.cellHeight &&
-          stepY < this.cells[centralCell].y
-        ) {
-          stepY += source.cellHeight;
-        } else stepY = this.cells[centralCell].y;
-        if (
-          stepX < this.cells[this.cells.length - 1].x - 1 * source.cellWidth &&
-          stepX > this.cells[centralCell].x
-        ) {
-          stepX -= source.cellWidth;
-        } else if (
-          stepX > this.cells[0].x + 1 * source.cellWidth &&
-          stepX < this.cells[centralCell].x
-        ) {
-          stepX += source.cellWidth;
-        } else {
-          stepX = this.cells[centralCell].x;
-        }
-
-        this.onCellClicked(this, this.cells[this.chooseIndex(stepX, stepY)]);
-      } else {
-        let a = this.templates[0].arr[Math.floor(Math.random() * 8)];
-        this.onCellClicked(this, this.cells[a + centralCell]);
-      }
+    if (this.store.length === 1 && !this.btn0WasPressed) {
+      indexPosition =
+        this.store.at(-1).id + 2 * source.cols * correctionY + 2 * correctionX;
+      this.onCellClicked(this, this.cells[indexPosition]);
     } else this.chooseStepGA();
   }
 
   chooseStepGA() {
-    let cellsGA = [];
-    let cellsR = [];
-    let cellsFieldGA = [];
-    let checkArrays = [];
-    let cellsFieldR = [];
-    if (this.store.length > 2 && !this.btn0WasPressed) {
-      //Собираем все свои ходы в массив cellsGA, ходы противника - в cellsR
+    let cellsGA = []; // массив ходов АИ
+    this.cellsR = []; // массив ходов игрока
+    //this.lastStep = [this.store.at(-1)];
+    this.cellsFieldGA = []; // массив возможных ходов АИ
+    this.cellsFieldR = []; // ---------//------- игрока
+    this.testKitLastMoves = [];
+    this.testKitGA = []; // 0-й эл. - корневая ячейка из this.cellsFieldGA. +4 тестовых массива
+    this.testKitR = []; // набор тестов для возможных ходов
+
+    if (
+      this.store.length > 2 &&
+      !this.btn0WasPressed
+      /*  && this.store[this.store.length-1].name === 1*/
+    ) {
       for (let i = 0; i < this.store.length; i++) {
-        this.store[i].id = this.chooseIndex(this.store[i].x, this.store[i].y);
-        if (this.store[i].name == "img2") {
+        if (this.store[i].name === 1) {
+          this.cellsR.push(this.store[i]);
+        }
+        if (this.store[i].name === 0) {
           cellsGA.push(this.store[i]);
-          // console.log(this.store[i].x + "  " + this.store[i].y);
-        } else {
-          cellsR.push(this.store[i]);
-          //console.log(this.store[i].x + "  " + this.store[i].y);
         }
       }
 
-      //Собираем все свободные ячейки возможных ходов ИА для создания проверочных массивов в cellsFieldGA
-      this.createCellsField(cellsGA, cellsFieldGA);
-      /*  //Для противника в cellsFieldR*/
-      this.createCellsField(cellsR, cellsFieldR);
+      // console.log(this.cellsR);
+      // console.log(cellsGA);
 
-      /*  //Создаем массивы checkArrays(в каждом 4: гориз., верт. и диагон-е)
-      // для каждой ячейки cellsField(для сравнения с шаблонами)*/
-      console.log(cellsFieldGA[9].id);
-      this.createCheckArrays(checkArrays, cellsFieldGA);
-      this.createCheckArrays(checkArrays, cellsFieldR);
-      console.log(checkArrays[9]);
-      //this.createCheckArrays(cellsFieldR);
+      //Собираем все свободные ячейки возможных ходов ИА для создания проверочных массивов в this.cellsFieldGA
+      this.createCellsField(cellsGA, this.cellsFieldGA);
+      //Для противника в cellsFieldR
+      this.createCellsField(this.cellsR, this.cellsFieldR);
 
-      /**/ // Делаем копии шаблонов, заменяя в них 1 на "img2" для ноликов
-       this.creatAdaptedTemplates("img2");
-    }
-  }
+      //console.log(this.cellsFieldGA);
+      //console.log(cellsFieldR);
+      /**/
+      //Создаем массивы testKit(в каждом: тестируемая ячейка и 4 массива - гориз., верт. и диагон-е)
+      // для последнего хода и каждой ячейки cellsField(для сравнения с шаблонами)
+      this.createTestKit(this.testKitLastMoves, this.cellsR);
+      this.createTestKit(this.testKitGA, this.cellsFieldGA);
+      this.createTestKit(this.testKitR, this.cellsFieldR);
 
-  chooseIndex(x, y) {
-    //Вычисляем номер ячейкм по координатам
-    this.Index =
-      ((y - this.cells[0].y) * source.cols) / source.cellHeight +
-      (x - this.cells[0].x) / source.cellWidth;
-    return this.Index;
-  }
+      // console.log(this.testKitGA);
+      //console.log(testKitR);
 
-  createCellsField(Array, Field) {
-    //Собираем все ячейки возможных ходов для создания проверочных массивов в Field
-    for (let i = 0; i < Array.length; i++) {
-      for (let j = 0; j < this.templates[1].arr.length; j++) {
+      // Определяем вес возможных ходов в атаке АИ.
+      this.getWeightField(this.testKitLastMoves, this.template_X);
+      this.getWeightField(this.testKitR, this.template_X);
+      this.getWeightField(this.testKitGA, this.template_O);
+
+      //============== Массив (this.sampleGA) 'лучших' возможных ходов АИ === start =============
+      this.sampleGA = [];
+      let index;
+      for (let i = 0; i < 5; i++) {
+        let Max = 0;
+        for (let j = 0; j < this.cellsFieldGA.length; j++) {
+          if (this.cellsFieldGA[j].w > Max) {
+            Max = this.cellsFieldGA[j].w;
+            index = j;
+          }
+        }
+        this.sampleGA.push(this.cellsFieldGA[index]);
+        this.cellsFieldGA.splice(index, 1);
+      }
+      console.log("------------------------------");
+
+      this.bestGA; // id выбранной ячейки
+      let Max = 0;
+      for (let i = 0; i < this.sampleGA.length; i++) {
+        if (this.sampleGA[i].data > Max) {
+          Max = this.sampleGA[i].data;
+          this.bestGA = i;
+        }
+      }
+      //====================== end ====================================================
+
+      /**/  for (let i = 0; i < this.sampleGA.length; i++) {
+        console.log(this.sampleGA[i].id + " " + this.sampleGA[i].data);
+        console.log(this.sampleGA[i].id + " " + this.sampleGA[i].w);
+      } 
+
+      //================ Массив (this.sampleR) 'лучших' возможных ходов соперника ===== start ==========
+      this.sampleR = [];
+      for (let i = 0; i < 5; i++) {
+        let Max = 0;
+        for (let j = 0; j < this.cellsFieldR.length; j++) {
+          if (this.cellsFieldR[j].z > Max) {
+            Max = this.cellsFieldR[j].z;
+            index = j;
+          }
+        }
+
+        this.sampleR.push(this.cellsFieldR[index]);
+        this.cellsFieldR.splice(index, 1);
+      }
+
+      this.bestR; // id выбранной ячейки
+      Max = 0;
+      for (let i = 0; i < this.sampleR.length; i++) {
+        if (this.sampleR[i].data > Max) {
+          Max = this.sampleR[i].data;
+          this.bestR = i;
+        }
+      }
+      //=============================== end =========================================
+      console.log(this.sampleGA[this.bestGA].id)
+      console.log(this.sampleR[this.bestR].id)
+      //this.chooseBestStep(this.sampleGA, this.bestGA);
+      
+      //============ Выбираем ячейку из this.cellsR с максимальным z =================
+      this.maxAttackMadeMoves;  // id выбранной ячейки
+      Max = 0;
+      for (let i = 0; i < this.cellsR.length; i++) {
+        if (this.cellsR[i].z > Max) {
+          Max = this.cellsR[i].z;
+          this.maxAttackMadeMoves = i;
+        }
+      }
+      //=============================== end =========================================
+      console.log(this.cellsR[ this.maxAttackMadeMoves].z + "   " + this.cellsR[ this.maxAttackMadeMoves].id);
+
+      //============= АИ ходит вторым. Выбор хода ====== start ===========
+
+      if (this.store[this.store.length - 1].name === 1) {
+        /**/ console.log(this.sampleGA[0].w + "   " + this.store.at(-1).z + "   " + this.store.at(-1).id);
+        console.log("------------------------------");    
+
         if (
-          this.cells[Array[i].id + this.templates[1].arr[j]] != null && // ячейка существует
-          this.cells[Array[i].id + this.templates[1].arr[j]].name == 0 // ячейка свободна
+          this.sampleGA[0].w >= this.template_X[2].attackWeight || // 5
+
+          (this.sampleGA[0].w >= this.template_X[4].attackWeight && //откр.4
+          this.cellsR[ this.maxAttackMadeMoves].z < this.template_X[4].protectionWeight) /**/ || //закр.4
+            
+          (this.cellsR[ this.maxAttackMadeMoves].z < this.template_X[9].protectionWeight/* && //откр.3
+            this.sampleR[0].z < this.template_X[4].protectionWeight  + 2 * this.template_X[13].protectionWeight */) 
+        ) {console.log(123 + "  " + this.cellsR[ this.maxAttackMadeMoves].z)
+          this.onCellClicked(this, this.cells[this.sampleGA[this.bestGA].id]);
+        } else{console.log(321+ " " + this.cells[this.sampleR[this.bestR].id].z)
+          this.onCellClicked(this, this.cells[this.sampleR[this.bestR].id]);
+        }
+      }
+      //=========================== end ===================================
+    }
+  }
+
+  createCellsField(ARRAY, FIELD) {
+    //Собираем все ячейки возможных ходов для АИ и игрока в свой массив
+    for (let i = 0; i < ARRAY.length; i++) {
+      for (let j = 0; j < this.template_X[1].arr.length; j++) {
+        if (
+          this.cells[ARRAY[i].id + this.template_X[1].arr[j]] != null && // ячейка существует
+          this.cells[ARRAY[i].id + this.template_X[1].arr[j]].name === false && // ячейка свободна
+          Math.abs(
+            this.cells[ARRAY[i].id + this.template_X[1].arr[j]].x - ARRAY[i].x
+          ) <
+            3 * source.cellWidth //ячейка не далее 2 длин своей ширины
         ) {
-          this.cells[Array[i].id + this.templates[1].arr[j]].name = 1; // обозначаем ее как занятую
-          Field.push(this.cells[Array[i].id + this.templates[1].arr[j]]); // отправляем в массив
+          this.cells[ARRAY[i].id + this.template_X[1].arr[j]].name = 1; // обозначаем ее как занятую
+          FIELD.push(this.cells[ARRAY[i].id + this.template_X[1].arr[j]]); // отправляем в массив
         }
       }
     }
-    Field.forEach((el) => {
-      //console.log(el.id)
-      el.name = 0; // вновь обозначаем ее как свободную
+    FIELD.forEach((el) => {
+      el.name = false; // вновь обозначаем ячейки как свободные
     });
-    return Field;
+    return FIELD;
   }
 
-  createCheckArrays(arr, Field) {
-    for (let i = 0; i < Field.length; i++) {
-      let a = new Arrays(Field[i], this.cells);
-      arr[i] = a.createArrays();
+  createTestKit(ARR, FIELD) {
+    for (let i = 0; i < FIELD.length; i++) {
+      ARR[i] = new Arrays(FIELD[i], this.cells).createArrays();
     }
-
-    return arr;
+    return ARR;
   }
 
-  creatAdaptedTemplates(name) {
-    let symbolTemplate = [];
-    for (let i = 2; i < this.templates.length; i++) {
-      symbolTemplate[i - 2] = this.templates[i].arr;
-    }
-    for (let i = 0; i < symbolTemplate.length; i++) {
-      for (let j = 0; j < symbolTemplate[i].length; j++) {
-        if (symbolTemplate[i][j] == 1) {
-          symbolTemplate[i][j] = name;
+  getWeightField(TEST, TEMPLATE) {
+    let count;
+    let test = [];
+
+    for (let i = 0; i < TEST.length; i++) {
+      if (TEST === this.testKitGA) {
+        TEST[i][0].name = 0;
+        this.testKitGA[i][0].w = 0;
+      } else if (TEST === this.testKitR) {
+        TEST[i][0].name = 1;
+        this.testKitR[i][0].z = 0;
+      } else if (TEST === this.testKitLastMoves) {
+        this.testKitLastMoves[i][0].z = 0;
+      }
+      outer: for (let j = 1; j < 5; j++) {
+        // проходим по шаблонам
+        for (let k = 2; k < TEMPLATE.length; k++) {
+          count = 0;
+          // выбираем тест из набора и создаем его копию
+          test = TEST[i][j].slice();
+          while (test.length >= TEMPLATE[k].arr.length) {
+            // проходим по тесту и шаблону с конца
+            if (
+              test[test.length - 1 - count].name ===
+              TEMPLATE[k].arr[TEMPLATE[k].arr.length - 1 - count]
+            ) {
+              count++;
+              if (count === TEMPLATE[k].arr.length) {
+                if (TEST === this.testKitGA) {
+                  this.testKitGA[i][0].w += TEMPLATE[k].attackWeight;
+                } else if (TEST === this.testKitR) {
+                  this.testKitR[i][0].z += TEMPLATE[k].protectionWeight;
+                } else if (TEST === this.testKitLastMoves) {
+                  this.testKitLastMoves[i][0].z += TEMPLATE[k].protectionWeight;
+                }
+
+                continue outer;
+              }
+            } else {
+              test.pop();
+              count = 0;
+            }
+          }
         }
       }
+      TEST[i][0].data = TEST[i][0].w + TEST[i][0].z;
+      if (TEST !== this.testKitLastMoves) {
+        TEST[i][0].name = false;
+      }
     }
-    console.log(symbolTemplate);
+  }
+
+  chooseBestStep(SAMPLE, INDEX) {
+    INDEX;
+    let Max = 0;
+    for (let i = 0; i < SAMPLE.length; i++) {
+      if (SAMPLE[i].data > Max) {
+        Max = SAMPLE[i].data;
+        INDEX = i;
+      }
+    }
   }
 
   setEvents() {
@@ -325,11 +419,12 @@ export default class Gamescene extends Phaser.Scene {
   }
 
   ActionButtonX() {
-    this.scene.restart();
+    this.store.length = 0;
+    this.createCells(); 
+    this.btn0WasPressed = false; 
   }
   ActionButtonO() {
     let centralCell = Math.floor(this.cells.length / 2);
-    this.isCross = true;
     this.store.length = 0;
     this.isFinish = false;
     this.createCells();

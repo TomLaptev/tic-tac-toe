@@ -15,7 +15,7 @@ export const config = {
 
 };
 
-export let source = {
+export const source = {
   rows: 15,
   cols: 15,
   cellWidth: 40,

@@ -1,0 +1,146 @@
+{
+  "templatesStore": [
+    {
+      "arr": [-16, -15, -14, -1, 1, 14, 15, 16]
+    },
+    {
+      "arr": [-16, -15, -14, -1, 1, 14, 15, 16, -32, -30, -28, -2, 2, 28, 30, 32]
+    }, 
+    {
+      "arr": [0, 0, 0, 0, 0],
+      "attackWeight": 50000,
+      "protectionWeight": 30000
+    },
+    {
+      "arr": [false, 0, 0, 0, 0, false],
+      "attackWeight": 24000,
+      "protectionWeight": 10000
+    },
+
+    {
+      "arr": [false, 0, 0, 0, 0],
+      "attackWeight": 15000,
+      "protectionWeight": 7500
+    },
+
+    {
+      "arr": [0, false, 0, 0, 0],
+      "attackWeight": 15000,
+      "protectionWeight": 7500
+    },
+
+    {
+      "arr": [0, 0, false, 0, 0],
+      "attackWeight": 15000,
+      "protectionWeight": 7500
+    },
+
+    {
+      "arr": [0, 0, 0, false, 0],
+       "attackWeight": 15000,
+      "protectionWeight": 7500
+    },
+
+    {
+      "arr": [0, 0, 0, 0, false],
+      "attackWeight": 15000,
+      "protectionWeight": 7500
+    },
+
+    {
+      "arr": [false, false, 0, 0, 0, false],
+      "attackWeight": 6000,
+      "protectionWeight": 2450
+    },
+
+    {
+      "arr": [false, 0, false, 0, 0, false],
+       "attackWeight": 6000,
+      "protectionWeight": 2400
+    },
+
+    {
+      "arr": [false, 0, 0, false, 0, false],
+      "attackWeight": 6000,
+      "protectionWeight": 2400
+    },
+
+    {
+      "arr": [false, 0, 0, 0, false, false],
+      "attackWeight": 6000,
+      "protectionWeight": 2450
+    },
+
+    {
+      "arr": [false, 0, 0, false, false, false],
+      "attackWeight": 2000,
+      "protectionWeight": 600
+    },
+
+    {
+      "arr": [false, 0, false, 0, false, false],
+      "attackWeight": 2000,
+      "protectionWeight": 600
+    },
+
+    {
+      "arr": [false, 0, false, false, 0, false],
+      "attackWeight": 2000,
+      "protectionWeight": 600
+    },
+
+    {
+      "arr": [false, false, 0, 0, false, false],
+       "attackWeight": 2000,
+      "protectionWeight": 600
+    },
+
+    {
+      "arr": [false, false, 0, false, 0, false],
+      "attackWeight": 2000,
+      "protectionWeight": 600
+    },
+
+    {
+      "arr": [false, false, false, 0, 0, false],
+       "attackWeight": 2000,
+      "protectionWeight": 600
+    },
+    {
+      "arr": [0, 0, 0, false, false],
+      "attackWeight": 1000,
+      "protectionWeight": 500
+    },
+
+    {
+      "arr": [0, 0, false, 0, false],
+       "attackWeight": 1000,
+      "protectionWeight": 500
+    },
+
+    {
+      "arr": [0, false, 0, 0, false],
+      "attackWeight": 1000,
+      "protectionWeight": 500
+    },
+
+    {
+      "arr": [false, false, 0, 0, 0],
+      "attackWeight": 1000,
+      "protectionWeight": 500
+    },
+
+    {
+      "arr": [false, 0, false, 0, 0],
+      "attackWeight": 1000,
+      "protectionWeight": 500
+    },
+
+    {
+      "arr": [false, 0, 0, false, 0],
+      "attackWeight": 1000,
+      "protectionWeight": 500
+    }
+
+  ]
+}
