@@ -19,6 +19,8 @@ export default class Gamescene extends Phaser.Scene {
     this.store = [];
     this.isFinish = false;
     this.btn0WasPressed = false;
+    this.cellsGA = []; // массив ходов АИ
+    this.cellsR = []; // массив ходов игрока
   }
 
   createButtons() {
@@ -74,7 +76,7 @@ export default class Gamescene extends Phaser.Scene {
   }
 
   onCellClicked(pointer, cell) {
-    if (cell && cell.name === false && cell.y >= this.cells[0].y ) {
+    if (cell && cell.name === false && cell.y >= this.cells[0].y) {
       //для крестика "обесцвечиваем" предыдущий нолик
       if (this.store.length % 2 == 0) {
         if (this.store.length > 0) {
@@ -84,6 +86,7 @@ export default class Gamescene extends Phaser.Scene {
         }
         this.add.sprite(cell.x, cell.y, "img1").setOrigin(0, 0);
         cell.name = 1;
+        this.cellsR.push(cell);
       } else {
         //для нолика "обесцвечиваем" предыдущий крестик
         if (this.store.length % 2) {
@@ -94,6 +97,7 @@ export default class Gamescene extends Phaser.Scene {
 
         this.add.sprite(cell.x, cell.y, "img2").setOrigin(0, 0);
         cell.name = 0;
+        this.cellsGA.push(cell);
       }
       this.store.push(cell);
 
@@ -138,8 +142,8 @@ export default class Gamescene extends Phaser.Scene {
           testWinKit[i].pop();
         }
       }
-    } 
-     //====================================
+    }
+    //====================================
 
     if (!this.isFinish && this.store.length > 0) {
       this.chooseFirstStepGA();
@@ -175,35 +179,26 @@ export default class Gamescene extends Phaser.Scene {
     } else this.chooseStepGA();
   }
 
-  chooseStepGA() {
-    let cellsGA = []; // массив ходов АИ
-    this.cellsR = []; // массив ходов игрока
+  chooseStepGA() {  
     //this.lastStep = [this.store.at(-1)];
     this.cellsFieldGA = []; // массив возможных ходов АИ
     this.cellsFieldR = []; // ---------//------- игрока
-    this.testKitLastMoves = [];
+   // this.testKitLastMovesGA = [];
+    this.testKitLastMovesR = [];
     this.testKitGA = []; // 0-й эл. - корневая ячейка из this.cellsFieldGA. +4 тестовых массива
     this.testKitR = []; // набор тестов для возможных ходов
 
     if (
-      this.store.length > 2 &&
+      this.store.length > 0 &&
       !this.btn0WasPressed
       /*  && this.store[this.store.length-1].name === 1*/
-    ) {
-      for (let i = 0; i < this.store.length; i++) {
-        if (this.store[i].name === 1) {
-          this.cellsR.push(this.store[i]);
-        }
-        if (this.store[i].name === 0) {
-          cellsGA.push(this.store[i]);
-        }
-      }
+    ) {    
 
-      // console.log(this.cellsR);
-      // console.log(cellsGA);
+      //  console.log(this.cellsR);
+      //  console.log(this.cellsGA);
 
       //Собираем все свободные ячейки возможных ходов ИА для создания проверочных массивов в this.cellsFieldGA
-      this.createCellsField(cellsGA, this.cellsFieldGA);
+      this.createCellsField(this.cellsGA, this.cellsFieldGA);
       //Для противника в cellsFieldR
       this.createCellsField(this.cellsR, this.cellsFieldR);
 
@@ -212,7 +207,8 @@ export default class Gamescene extends Phaser.Scene {
       /**/
       //Создаем массивы testKit(в каждом: тестируемая ячейка и 4 массива - гориз., верт. и диагон-е)
       // для последнего хода и каждой ячейки cellsField(для сравнения с шаблонами)
-      this.createTestKit(this.testKitLastMoves, this.cellsR);
+     // this.createTestKit(this.testKitLastMovesGA, this.cellsGA);
+      this.createTestKit(this.testKitLastMovesR, this.cellsR);
       this.createTestKit(this.testKitGA, this.cellsFieldGA);
       this.createTestKit(this.testKitR, this.cellsFieldR);
 
@@ -220,7 +216,8 @@ export default class Gamescene extends Phaser.Scene {
       //console.log(testKitR);
 
       // Определяем вес возможных ходов в атаке АИ.
-      this.getWeightField(this.testKitLastMoves, this.template_X);
+     // this.getWeightField(this.testKitLastMovesGA, this.template_O);
+      this.getWeightField(this.testKitLastMovesR, this.template_X);
       this.getWeightField(this.testKitR, this.template_X);
       this.getWeightField(this.testKitGA, this.template_O);
 
@@ -250,10 +247,10 @@ export default class Gamescene extends Phaser.Scene {
       }
       //====================== end ====================================================
 
-      /**/  for (let i = 0; i < this.sampleGA.length; i++) {
+      /* for (let i = 0; i < this.sampleGA.length; i++) {
         console.log(this.sampleGA[i].id + " " + this.sampleGA[i].data);
         console.log(this.sampleGA[i].id + " " + this.sampleGA[i].w);
-      } 
+      }*/
 
       //================ Массив (this.sampleR) 'лучших' возможных ходов соперника ===== start ==========
       this.sampleR = [];
@@ -273,50 +270,75 @@ export default class Gamescene extends Phaser.Scene {
       this.bestR; // id выбранной ячейки
       Max = 0;
       for (let i = 0; i < this.sampleR.length; i++) {
-        if (this.sampleR[i].data > Max) {
-          Max = this.sampleR[i].data;
+        if (this.sampleR[i].z > Max) {
+          Max = this.sampleR[i].z;
           this.bestR = i;
         }
       }
       //=============================== end =========================================
-      console.log(this.sampleGA[this.bestGA].id)
-      console.log(this.sampleR[this.bestR].id)
+     /*  console.log(this.sampleGA[this.bestGA].id);
+      console.log(this.sampleR[this.bestR].id); */
       //this.chooseBestStep(this.sampleGA, this.bestGA);
-      
+
       //============ Выбираем ячейку из this.cellsR с максимальным z =================
-      this.maxAttackMadeMoves;  // id выбранной ячейки
+      this.maxAttackMadeMovesR; // номер выбранной ячейки в массиве this.cellsR
       Max = 0;
-      for (let i = 0; i < this.cellsR.length; i++) {
-        if (this.cellsR[i].z > Max) {
-          Max = this.cellsR[i].z;
-          this.maxAttackMadeMoves = i;
-        }
+      if (this.cellsR.length >= 2) {
+        for (let i = 0; i < this.cellsR.length; i++) {
+          if (this.cellsR[i].z > Max) {
+            Max = this.cellsR[i].z;
+            this.maxAttackMadeMovesR = i;
+          }
+        }        
+        console.log(this.cellsR)
+        console.log(this.cellsR.length)
+        console.log(this.cellsR[this.maxAttackMadeMovesR].z)
       }
-      //=============================== end =========================================
-      console.log(this.cellsR[ this.maxAttackMadeMoves].z + "   " + this.cellsR[ this.maxAttackMadeMoves].id);
-
-      //============= АИ ходит вторым. Выбор хода ====== start ===========
-
-      if (this.store[this.store.length - 1].name === 1) {
-        /**/ console.log(this.sampleGA[0].w + "   " + this.store.at(-1).z + "   " + this.store.at(-1).id);
-        console.log("------------------------------");    
-
-        if (
-          this.sampleGA[0].w >= this.template_X[2].attackWeight || // 5
-
-          (this.sampleGA[0].w >= this.template_X[4].attackWeight && //откр.4
-          this.cellsR[ this.maxAttackMadeMoves].z < this.template_X[4].protectionWeight) /**/ || //закр.4
-            
-          (this.cellsR[ this.maxAttackMadeMoves].z < this.template_X[9].protectionWeight/* && //откр.3
-            this.sampleR[0].z < this.template_X[4].protectionWeight  + 2 * this.template_X[13].protectionWeight */) 
-        ) {console.log(123 + "  " + this.cellsR[ this.maxAttackMadeMoves].z)
-          this.onCellClicked(this, this.cells[this.sampleGA[this.bestGA].id]);
-        } else{console.log(321+ " " + this.cells[this.sampleR[this.bestR].id].z)
-          this.onCellClicked(this, this.cells[this.sampleR[this.bestR].id]);
-        }
-      }
-      //=========================== end ===================================
     }
+      //=============================== end =========================================
+      //console.log(this.cellsR[this.maxAttackMadeMovesR].z + "   " + this.cellsR[this.maxAttackMadeMovesR].id
+      //);
+      //============ Выбираем ячейку из this.cellsGA с максимальным w =================
+/*       this.maxAttackMadeMovesGA; // номер выбранной ячейки в массиве this.cellsGA
+      console.log(this.cellsGA)
+      Max = 0;
+      if (this.cellsGA.length >= 4) {
+        for (let i = 0; i < this.cellsGA.length; i++) {
+          if (this.cellsGA[i].w > Max) {
+            Max = this.cellsGA[i].w;
+            this.maxAttackMadeMovesGA = i;
+          }
+        }
+      console.log("hi!")
+      console.log(Max)   
+      console.log(this.cellsGA)         
+      console.log(this.cellsGA.length)         
+      console.log(this.cellsGA[this.maxAttackMadeMovesGA].w)         
+      }
+    
+   // console.log(this.maxAttackMadeMovesGA); */
+     
+    //=============================== end =========================================
+    //console.log(this.cellsR[this.maxAttackMadeMovesR].z + "   " + 2 * this.template_X[13].protectionWeight);
+    //============= АИ ходит вторым. Выбор хода ====== start ===========
+    if (this.store.at(-1).name === 1) {
+
+      if (this.sampleGA[0].w >= this.template_X[2].attackWeight || // 5
+
+        (this.sampleGA[0].w >= this.template_X[4].attackWeight && //откр.4
+        this.sampleR[0].z < this.template_X[2].protectionWeight)  || 
+
+        
+        (this.cellsR[this.maxAttackMadeMovesR].z < this.template_X[10].protectionWeight && 
+          this.sampleGA[0].w >=  this.template_X[10].attackWeight + this.template_X[13].attackWeight)) {
+        console.log(123);
+        this.onCellClicked(this, this.cells[this.sampleGA[this.bestGA].id]);
+      } else {
+        console.log(321);
+        this.onCellClicked(this, this.cells[this.sampleR[this.bestR].id]);
+      }
+    }
+    //=========================== end ===================================
   }
 
   createCellsField(ARRAY, FIELD) {
@@ -360,9 +382,11 @@ export default class Gamescene extends Phaser.Scene {
       } else if (TEST === this.testKitR) {
         TEST[i][0].name = 1;
         this.testKitR[i][0].z = 0;
-      } else if (TEST === this.testKitLastMoves) {
-        this.testKitLastMoves[i][0].z = 0;
-      }
+      } else if (TEST === this.testKitLastMovesR) {
+        this.testKitLastMovesR[i][0].z = 0;
+      } /* else if (TEST === this.testKitLastMovesGA) {
+        this.testKitLastMovesGA[i][0].w = 0;
+      } */
       outer: for (let j = 1; j < 5; j++) {
         // проходим по шаблонам
         for (let k = 2; k < TEMPLATE.length; k++) {
@@ -381,9 +405,12 @@ export default class Gamescene extends Phaser.Scene {
                   this.testKitGA[i][0].w += TEMPLATE[k].attackWeight;
                 } else if (TEST === this.testKitR) {
                   this.testKitR[i][0].z += TEMPLATE[k].protectionWeight;
-                } else if (TEST === this.testKitLastMoves) {
-                  this.testKitLastMoves[i][0].z += TEMPLATE[k].protectionWeight;
-                }
+                } else if (TEST === this.testKitLastMovesR) {
+                  this.testKitLastMovesR[i][0].z +=
+                    TEMPLATE[k].protectionWeight;
+                } /* else if (TEST === this.testKitLastMovesGA) {
+                  this.testKitLastMovesGA[i][0].w += TEMPLATE[k].attackWeight;
+                } */
 
                 continue outer;
               }
@@ -395,7 +422,7 @@ export default class Gamescene extends Phaser.Scene {
         }
       }
       TEST[i][0].data = TEST[i][0].w + TEST[i][0].z;
-      if (TEST !== this.testKitLastMoves) {
+      if (TEST !== this.testKitLastMovesR && TEST !== this.testKitLastMovesGA) {
         TEST[i][0].name = false;
       }
     }
@@ -420,8 +447,9 @@ export default class Gamescene extends Phaser.Scene {
 
   ActionButtonX() {
     this.store.length = 0;
-    this.createCells(); 
-    this.btn0WasPressed = false; 
+    this.createCells();
+    this.btn0WasPressed = false;
+    this.isFinish = false;
   }
   ActionButtonO() {
     let centralCell = Math.floor(this.cells.length / 2);
