@@ -14,7 +14,7 @@
     {
       "arr": [false, 1, 1, 1, 1, false],
       "attackWeight": 24000,
-      "protectionWeight": 10000
+      "protectionWeight": 12000
     },
 
     {
@@ -73,37 +73,37 @@
 
     {
       "arr": [false, 1, 1, false, false, false],
-      "attackWeight": 2000,
+      "attackWeight": 1800,
       "protectionWeight": 600
     },
 
     {
       "arr": [false, 1, false, 1, false, false],
-      "attackWeight": 2000,
+      "attackWeight": 1800,
       "protectionWeight": 600
     },
 
     {
       "arr": [false, 1, false, false, 1, false],
-      "attackWeight": 2000,
+      "attackWeight": 1800,
       "protectionWeight": 600
     },
 
     {
       "arr": [false, false, 1, 1, false, false],
-       "attackWeight": 2000,
+       "attackWeight": 1800,
       "protectionWeight": 600
     },
 
     {
       "arr": [false, false, 1, false, 1, false],
-      "attackWeight": 2000,
+      "attackWeight": 1800,
       "protectionWeight": 600
     },
 
     {
       "arr": [false, false, false, 1, 1, false],
-       "attackWeight": 2000,
+       "attackWeight": 1800,
       "protectionWeight": 600
     },
     {

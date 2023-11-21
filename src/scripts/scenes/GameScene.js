@@ -4,7 +4,6 @@ import Arrays from "../components/Arrays";
 import { config, source } from "../../index.js";
 import template_X from "../components/template_X.json";
 import template_O from "../components/template_O.json";
-import { name } from "file-loader";
 
 export default class Gamescene extends Phaser.Scene {
   constructor() {
@@ -12,9 +11,12 @@ export default class Gamescene extends Phaser.Scene {
   }
 
   create() {
-    this.add.sprite(0, 0, "bg").setOrigin(0);
-    this.createButtons();
+    this.add.sprite(0, 0, "background").setOrigin(0);
+    this.createServiceButtons();
     this.createCells();
+    this.createControlButtons();
+    this.createText();
+    this.createPointer();
     this.setEvents();
     this.store = [];
     this.isFinish = false;
@@ -23,17 +25,101 @@ export default class Gamescene extends Phaser.Scene {
     this.cellsR = []; // массив ходов игрока
   }
 
-  createButtons() {
+  createPointer() {
+    if (true) {
+      this.Pointer = this.add
+      .sprite(
+        (this.cells[0].x + this.cells.at(-1).x) / 2,
+        (this.cells[0].y + this.cells.at(-1).y) / 2,
+        "pointer"
+      )
+      .setOrigin(0, 0)
+    }
+  }
+
+  createControlButtons() {
+    this.btnLeft = this.add
+    .sprite(
+      this.cameras.main.centerX + 0,
+      this.cameras.main.centerY + 170,
+      "left"
+    )
+    .setOrigin(0, 0)
+    .setInteractive();
+
+    this.btnRight = this.add
+    .sprite(
+      this.cameras.main.centerX + 200,
+      this.cameras.main.centerY + 170,
+      "right"
+    )
+    .setOrigin(0, 0)
+    .setInteractive();
+
+    this.btnDown = this.add
+    .sprite(
+      this.cameras.main.centerX + 100,
+      this.cameras.main.centerY + 240,
+      "down"
+    )
+    .setOrigin(0, 0)
+    .setInteractive();
+
+    this.btnUp = this.add
+    .sprite(
+      this.cameras.main.centerX + 100,
+      this.cameras.main.centerY + 100,
+      "up"
+    )
+    .setOrigin(0, 0)
+    .setInteractive();
+
+    this.btnEnter = this.add
+    .sprite(
+      this.cameras.main.centerX - 250,
+      this.cameras.main.centerY + 300,
+      "enter"
+    )
+    .setOrigin(0, 0)
+    .setInteractive();
+  }
+
+  createText() {
+
+    this.title = "New Game";
+    this.add.text(
+      //this.cameras.main.centerX - 100,
+      this.offsetX + source.cellWidth * 6,
+      this.cameras.main.centerY - 430,
+      this.title,
+      {
+        font: "36px NautilusPompilius",
+        fill: "#0000ff",
+      }
+    );
+  }
+
+  createServiceButtons() {
     let style = {
-      font: " 26px Arial",
+      font: " 26px NautilusPompilius",
       fill: "#F30C0C",
     };
 
+    this.buttonMenu = this.add
+    .sprite(
+      this.cameras.main.centerX - 50,
+      this.cameras.main.centerY - 430,
+      "buttonMenu"
+    )
+    .setOrigin(0, 0)
+    .setInteractive({ cursor: "pointer" });
+
+
     this.buttonX = this.add
       .text(
-        this.cameras.main.centerX - 175,
-        this.cameras.main.centerY - 325,
-        "New game for",
+        this.cameras.main.centerX - 470 ,
+        this.cameras.main.centerY - 365,
+        "your move",
         style
       )
       .setOrigin(0.5)
@@ -41,9 +127,9 @@ export default class Gamescene extends Phaser.Scene {
 
     this.buttonO = this.add
       .text(
-        this.cameras.main.centerX + 95,
-        this.cameras.main.centerY - 325,
-        "New game for",
+        this.cameras.main.centerX - 160,
+        this.cameras.main.centerY - 365,
+        "computer's move",
         style
       )
       .setOrigin(0.5)
@@ -58,25 +144,11 @@ export default class Gamescene extends Phaser.Scene {
       this.cells[i] = new Cell(this, positions[i], i);
       this.cells[i].name = false; //Отмечаем закрытые(свободные) ячейки
     }
-
-    this.add
-      .sprite(
-        this.cameras.main.centerX - 70,
-        this.cameras.main.centerY - 325,
-        "img10"
-      )
-      .setOrigin(0.5, 0.5);
-    this.add
-      .sprite(
-        this.cameras.main.centerX + 200,
-        this.cameras.main.centerY - 325,
-        "img20"
-      )
-      .setOrigin(0.5, 0.5);
   }
 
   onCellClicked(pointer, cell) {
-    if (cell && cell.name === false && cell.y >= this.cells[0].y) {
+    if (!this.isFinish && cell && cell.name === false && cell.y >= this.cells[0].y) {
+      this.Pointer.destroy();
       //для крестика "обесцвечиваем" предыдущий нолик
       if (this.store.length % 2 == 0) {
         if (this.store.length > 0) {
@@ -100,7 +172,12 @@ export default class Gamescene extends Phaser.Scene {
         this.cellsGA.push(cell);
       }
       this.store.push(cell);
-
+      this.createPointer();
+      if (this.store.length > 1 && !this.isFinish) {
+        this.Pointer.x = this.store.at(-2).x;
+      this.Pointer.y = this.store.at(-2).y;
+      }
+      
       // Проверка наличия победителя
 
       // Запускаем createArrays() в кл. Arrays и получаем массив,
@@ -154,16 +231,20 @@ export default class Gamescene extends Phaser.Scene {
     this.template_X = template_X.templatesStore;
     this.template_O = template_O.templatesStore;
     let correctionX = 0;
+    let additiveX = 0;
     let correctionY;
+    let additiveY = 0;
     let indexPosition;
 
     if (this.store.at(-1).x < this.cells[0].x + 4 * source.cellWidth) {
       correctionX = 1;
+      additiveX = 1;
     } else if (
       this.store.at(-1).x >
       this.cells.at(-1).x - 4 * source.cellWidth
     ) {
       correctionX = -1;
+      additiveX = 1;
     }
     if (
       this.store.at(-1).y <
@@ -171,10 +252,15 @@ export default class Gamescene extends Phaser.Scene {
     ) {
       correctionY = 1;
     } else correctionY = -1;
+    if (this.store.at(-1).y < this.cells[0].y + 3 * source.cellHeight) {
+      additiveY = source.cols;
+    } else if ( this.store.at(-1).y > this.cells.at(-1).y - 3 * source.cellWidth) {
+      additiveY = source.cols;
+    }
 
     if (this.store.length === 1 && !this.btn0WasPressed) {
       indexPosition =
-        this.store.at(-1).id + 2 * source.cols * correctionY + 2 * correctionX;
+        this.store.at(-1).id + correctionY * (source.cols + additiveY) + correctionX * (1 + additiveX);
       this.onCellClicked(this, this.cells[indexPosition]);
     } else this.chooseStepGA();
   }
@@ -182,14 +268,17 @@ export default class Gamescene extends Phaser.Scene {
   chooseStepGA() {  
     //this.lastStep = [this.store.at(-1)];
     this.cellsFieldGA = []; // массив возможных ходов АИ
-    this.cellsFieldR = []; // ---------//------- игрока
-   // this.testKitLastMovesGA = [];
-    this.testKitLastMovesR = [];
-    this.testKitGA = []; // 0-й эл. - корневая ячейка из this.cellsFieldGA. +4 тестовых массива
-    this.testKitR = []; // набор тестов для возможных ходов
+    this.sampleGA = []; // массив лучших ходов (по w) АИ
+    this.cellsFieldR = []; // массив возможных ходов игрока
+    this.sampleR = []; // массив лучших ходов (по z) игрока
+    this.testKitLastMovesR = [];// набор тестов для сделанных ходов игрока
+    this.testKitGA = []; // набор тестов для возможных ходов АИ
+    this.testKitR = []; // набор тестов для возможных ходов игрока
+    //набор тестов:
+    //0-й эл. - корневая ячейка + 4 тестовых массива
 
     if (
-      this.store.length > 0 &&
+      //this.store.length >= 2 &&
       !this.btn0WasPressed
       /*  && this.store[this.store.length-1].name === 1*/
     ) {    
@@ -207,7 +296,6 @@ export default class Gamescene extends Phaser.Scene {
       /**/
       //Создаем массивы testKit(в каждом: тестируемая ячейка и 4 массива - гориз., верт. и диагон-е)
       // для последнего хода и каждой ячейки cellsField(для сравнения с шаблонами)
-     // this.createTestKit(this.testKitLastMovesGA, this.cellsGA);
       this.createTestKit(this.testKitLastMovesR, this.cellsR);
       this.createTestKit(this.testKitGA, this.cellsFieldGA);
       this.createTestKit(this.testKitR, this.cellsFieldR);
@@ -216,129 +304,114 @@ export default class Gamescene extends Phaser.Scene {
       //console.log(testKitR);
 
       // Определяем вес возможных ходов в атаке АИ.
-     // this.getWeightField(this.testKitLastMovesGA, this.template_O);
       this.getWeightField(this.testKitLastMovesR, this.template_X);
       this.getWeightField(this.testKitR, this.template_X);
       this.getWeightField(this.testKitGA, this.template_O);
 
       //============== Массив (this.sampleGA) 'лучших' возможных ходов АИ === start =============
-      this.sampleGA = [];
-      let index;
-      for (let i = 0; i < 5; i++) {
-        let Max = 0;
-        for (let j = 0; j < this.cellsFieldGA.length; j++) {
-          if (this.cellsFieldGA[j].w > Max) {
-            Max = this.cellsFieldGA[j].w;
-            index = j;
-          }
-        }
-        this.sampleGA.push(this.cellsFieldGA[index]);
-        this.cellsFieldGA.splice(index, 1);
-      }
-      console.log("------------------------------");
+      this.getBestAttackGA();
+      this.getBestAttackR();
 
-      this.bestGA; // id выбранной ячейки
-      let Max = 0;
-      for (let i = 0; i < this.sampleGA.length; i++) {
-        if (this.sampleGA[i].data > Max) {
-          Max = this.sampleGA[i].data;
-          this.bestGA = i;
-        }
-      }
       //====================== end ====================================================
-
-      /* for (let i = 0; i < this.sampleGA.length; i++) {
-        console.log(this.sampleGA[i].id + " " + this.sampleGA[i].data);
-        console.log(this.sampleGA[i].id + " " + this.sampleGA[i].w);
-      }*/
-
-      //================ Массив (this.sampleR) 'лучших' возможных ходов соперника ===== start ==========
-      this.sampleR = [];
-      for (let i = 0; i < 5; i++) {
-        let Max = 0;
-        for (let j = 0; j < this.cellsFieldR.length; j++) {
-          if (this.cellsFieldR[j].z > Max) {
-            Max = this.cellsFieldR[j].z;
-            index = j;
-          }
-        }
-
-        this.sampleR.push(this.cellsFieldR[index]);
-        this.cellsFieldR.splice(index, 1);
-      }
-
-      this.bestR; // id выбранной ячейки
-      Max = 0;
-      for (let i = 0; i < this.sampleR.length; i++) {
-        if (this.sampleR[i].z > Max) {
-          Max = this.sampleR[i].z;
-          this.bestR = i;
-        }
-      }
-      //=============================== end =========================================
-     /*  console.log(this.sampleGA[this.bestGA].id);
-      console.log(this.sampleR[this.bestR].id); */
-      //this.chooseBestStep(this.sampleGA, this.bestGA);
-
       //============ Выбираем ячейку из this.cellsR с максимальным z =================
       this.maxAttackMadeMovesR; // номер выбранной ячейки в массиве this.cellsR
-      Max = 0;
+     let Max = 0;
       if (this.cellsR.length >= 2) {
+        //Phaser.Utils.Array.Shuffle(this.cellsR);
         for (let i = 0; i < this.cellsR.length; i++) {
           if (this.cellsR[i].z > Max) {
             Max = this.cellsR[i].z;
             this.maxAttackMadeMovesR = i;
-          }
-        }        
-        console.log(this.cellsR)
-        console.log(this.cellsR.length)
-        console.log(this.cellsR[this.maxAttackMadeMovesR].z)
+          } else this.maxAttackMadeMovesR = 0;
+        } 
       }
     }
       //=============================== end =========================================
-      //console.log(this.cellsR[this.maxAttackMadeMovesR].z + "   " + this.cellsR[this.maxAttackMadeMovesR].id
-      //);
-      //============ Выбираем ячейку из this.cellsGA с максимальным w =================
-/*       this.maxAttackMadeMovesGA; // номер выбранной ячейки в массиве this.cellsGA
-      console.log(this.cellsGA)
-      Max = 0;
-      if (this.cellsGA.length >= 4) {
-        for (let i = 0; i < this.cellsGA.length; i++) {
-          if (this.cellsGA[i].w > Max) {
-            Max = this.cellsGA[i].w;
-            this.maxAttackMadeMovesGA = i;
-          }
-        }
-      console.log("hi!")
-      console.log(Max)   
-      console.log(this.cellsGA)         
-      console.log(this.cellsGA.length)         
-      console.log(this.cellsGA[this.maxAttackMadeMovesGA].w)         
+      if (this.cellsR.length && this.sampleR.length && this.maxAttackMadeMovesR >= 0) {
+        console.log(this.sampleGA[0].w + " " + this.sampleGA[0].id);
+        console.log(this.sampleR[0].z + " " + this.sampleR[0].id);
+        console.log(this.cellsR[this.maxAttackMadeMovesR].z + " " + this.sampleR[0].id);        
       }
-    
-   // console.log(this.maxAttackMadeMovesGA); */
-     
-    //=============================== end =========================================
-    //console.log(this.cellsR[this.maxAttackMadeMovesR].z + "   " + 2 * this.template_X[13].protectionWeight);
+      console.log("======================================= ");
     //============= АИ ходит вторым. Выбор хода ====== start ===========
     if (this.store.at(-1).name === 1) {
 
-      if (this.sampleGA[0].w >= this.template_X[2].attackWeight || // 5
+       if (this.sampleGA[0].w >= this.template_X[2].attackWeight || // 5!
 
-        (this.sampleGA[0].w >= this.template_X[4].attackWeight && //откр.4
-        this.sampleR[0].z < this.template_X[2].protectionWeight)  || 
+         (this.sampleGA[0].w >= this.template_X[4].attackWeight + this.template_X[10].attackWeight) && //закр.4 + откр.3
+          this.cellsR[this.maxAttackMadeMovesR].z < (this.template_X[4].protectionWeight || //закр.4
+          this.sampleR[0].z < this.template_X[3].protectionWeight) || //откр.4
 
-        
-        (this.cellsR[this.maxAttackMadeMovesR].z < this.template_X[10].protectionWeight && 
-          this.sampleGA[0].w >=  this.template_X[10].attackWeight + this.template_X[13].attackWeight)) {
-        console.log(123);
+        (this.sampleGA[0].w >= this.template_X[10].attackWeight &&  //откр.3
+          this.cellsR[this.maxAttackMadeMovesR].z < this.template_X[10].protectionWeight &&  // откр.3
+          this.sampleR[0].z < this.template_X[5].protectionWeight + this.template_X[10].protectionWeight) || //закр.4 + откр.3
+
+         this.cellsR[this.maxAttackMadeMovesR].z <= this.template_X[20].protectionWeight)  
+        {
+        console.log("атака");
         this.onCellClicked(this, this.cells[this.sampleGA[this.bestGA].id]);
       } else {
-        console.log(321);
+        console.log("защита");
         this.onCellClicked(this, this.cells[this.sampleR[this.bestR].id]);
       }
     }
+  }
     //=========================== end ===================================
+
+  getBestAttackGA(){    
+    let index;
+    let field = this.cellsFieldGA.slice();
+    let max;
+    for (let i = 0; i < 3; i++) {
+      let max = 0;
+      for (let j = 0; j < field.length; j++) {
+        if (field[j].w > max) {
+          max = field[j].w;
+          index = j;
+        }
+      }
+      this.sampleGA.push(field[index]);
+      field.splice(index, 1);
+    }
+
+    this.bestGA; // id выбранной ячейки
+    max = 0;
+    for (let i = 0; i < this.sampleGA.length; i++) {
+      if (this.sampleGA[i].data > max) {
+        max = this.sampleGA[i].data;
+        this.bestGA = i;
+      }
+    }
+  };
+
+  getBestAttackR() {
+    let index;
+    let field = this.cellsFieldR.slice();
+    let max = 0;
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < field.length; j++) {
+        if (field[j].z > max) {
+          max = field[j].z;
+          index = j;
+        }
+      }
+        if (max > 0) { 
+          this.sampleR.push(field[index]);       
+      field.splice(index, 1);}
+      }
+    
+    
+    this.bestR = 0; // id выбранной ячейки
+    max = 0;
+    console.log(this.sampleR)
+    for (let i = 0; i < this.sampleR.length; i++) {
+      
+      if (this.sampleR.length > 0 && this.sampleR[i].z > max) { 
+        max = this.sampleR[i].z;
+        
+        this.bestR = i;
+      }
+    }
   }
 
   createCellsField(ARRAY, FIELD) {
@@ -384,9 +457,7 @@ export default class Gamescene extends Phaser.Scene {
         this.testKitR[i][0].z = 0;
       } else if (TEST === this.testKitLastMovesR) {
         this.testKitLastMovesR[i][0].z = 0;
-      } /* else if (TEST === this.testKitLastMovesGA) {
-        this.testKitLastMovesGA[i][0].w = 0;
-      } */
+      } 
       outer: for (let j = 1; j < 5; j++) {
         // проходим по шаблонам
         for (let k = 2; k < TEMPLATE.length; k++) {
@@ -408,9 +479,7 @@ export default class Gamescene extends Phaser.Scene {
                 } else if (TEST === this.testKitLastMovesR) {
                   this.testKitLastMovesR[i][0].z +=
                     TEMPLATE[k].protectionWeight;
-                } /* else if (TEST === this.testKitLastMovesGA) {
-                  this.testKitLastMovesGA[i][0].w += TEMPLATE[k].attackWeight;
-                } */
+                } 
 
                 continue outer;
               }
@@ -443,6 +512,12 @@ export default class Gamescene extends Phaser.Scene {
     this.input.on("gameobjectdown", this.onCellClicked, this);
     this.buttonX.on("pointerdown", this.ActionButtonX, this);
     this.buttonO.on("pointerdown", this.ActionButtonO, this);
+    this.buttonMenu.on("pointerdown", this.ReturnStart, this);
+    this.btnLeft.on("pointerdown", this.MoveLeft, this);
+    this.btnRight.on("pointerdown", this.MoveRight, this);
+    this.btnUp.on("pointerdown", this.MoveUp, this);
+    this.btnDown.on("pointerdown", this.MoveDown, this);
+    this.btnEnter.on("pointerdown", this.MoveEnter, this);
   }
 
   ActionButtonX() {
@@ -460,18 +535,48 @@ export default class Gamescene extends Phaser.Scene {
     this.btn0WasPressed = true;
     this.onCellClicked(this, this.cells[centralCell]);
   }
+  ReturnStart() {
+    this.scene.sleep('UIScene');
+    this.scene.switch('Start');
+  }  
+  MoveLeft(){
+    if (this.Pointer.x > this.cells[0].x && !this.isFinish) {
+      this.Pointer.x -= source.cellWidth;
+    }    
+  }
+  MoveRight(){
+    if (this.Pointer.x < this.cells.at(-1).x && !this.isFinish ) {
+      this.Pointer.x += source.cellWidth;
+    } 
+  }
+  MoveUp(){
+    if (this.Pointer.y > this.cells[0].y && !this.isFinish ) {
+      this.Pointer.y -= source.cellHeight;
+    } 
+  }
+  MoveDown(){
+    if (this.Pointer.y < this.cells.at(-1).y && !this.isFinish ) {
+      this.Pointer.y += source.cellHeight;
+    } 
+  }
+  MoveEnter(){
+    let pos = source.cols * (this.Pointer.y - this.cells[0].y) / source.cellHeight +
+    (this.Pointer.x - this.cells[0].x) / source.cellWidth;
+    this.onCellClicked(this, this.cells[pos]);
+  }
 
   getCellsPositions() {
     let positions = [];
-    let offsetX = (config.width - source.cellWidth * source.cols) / 2;
+    //let offsetX = (config.width - source.cellWidth * source.cols)/2;
+      this.offsetX = this.cameras.main.centerX - source.cellWidth * source.cols
     let offsetY =
-      (config.height - source.cellHeight * source.rows) / 2 +
-      source.cellHeight * 1;
+      (config.height - source.cellHeight * source.rows) / 2 -
+      source.cellHeight;
 
     for (let row = 0; row < source.rows; row++) {
       for (let col = 0; col < source.cols; col++) {
         positions.push({
-          x: offsetX + col * source.cellWidth,
+          x: this.offsetX + col * source.cellWidth,
           y: offsetY + row * source.cellHeight,
         });
       }

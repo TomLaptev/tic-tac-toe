@@ -1,16 +1,20 @@
 import Phaser from "phaser";
 import BootScene from "./scripts/scenes/BootScene";
 import PreloadScene from "./scripts/scenes/PreloadScene";
+import StartScene from "./scripts/scenes/StartScene";
 import GameScene from "./scripts/scenes/GameScene";
 
 export const config = {
   type: Phaser.AUTO,
-  width: 2560,
-  height: 720,
-  scene: [BootScene, PreloadScene, GameScene],
+  width: 2280,
+  height: 920,
+  scene: [BootScene, PreloadScene, StartScene, GameScene],
   scale: {
-    mode: Phaser.Scale.CENTER_HORIZONTALLY,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    // mode: Phaser.Scale.CENTER_HORIZONTALLY,
+    // autoCenter: Phaser.Scale.CENTER_BOTH,
+
+    mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
 
 };

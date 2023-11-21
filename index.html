@@ -13,14 +13,19 @@
         }
 
         @font-face {
-            font-family: 'CurseCasual';
-            src: url('src/assets/fonts/CurseCasual');
+            font-family: 'NautilusPompilius';
+            src: url('src/assets/fonts/NautilusPompiliusRegular.ttf');
         } 
+        .fontPreload {
+          font-family: "NautilusPompilius";
+          position: absolute;
+          left: -100px;
+        }
 
 
 
-/**/ canvas {
-    width: 100%;
+canvas {
+    /*  width: 100%; */
     height: 100%;
 }  
     </style>
@@ -28,6 +33,7 @@
 </head>
 
 <body>
+    <div class="fontPreload">.</div>
 </body>
 
 </html>

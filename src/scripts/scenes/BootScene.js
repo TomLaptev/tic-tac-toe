@@ -8,11 +8,11 @@ export default class BootScene extends Phaser.Scene {
   }
 
    preload() {
-    this.load.image('bg', bgJpg)        
+    this.load.image('background', bgJpg)        
   };
 
    create() {
-       this.add.sprite(0, 0, "bg").setOrigin(0, 0);
+       this.add.sprite(0, 0, "background").setOrigin(0, 0);
        this.scene.start('Preload');
       
   }
