@@ -7,7 +7,7 @@ export function buildLoaders(): webpack.RuleSetRule[] {
 		exclude: /node_modules/,
 	};
 	const fileLoader = {
-		test: /\.(gif|png|jpe?g|svg|xml)$/i,
+		test: /\.(gif|png|jpe?g|svg|xml|)$/i,
 		use: 'file-loader',
 		exclude: /node_modules/,
 	};
@@ -16,5 +16,10 @@ export function buildLoaders(): webpack.RuleSetRule[] {
 		use: ['style-loader', 'css-loader'],
 		exclude: /node_modules/,
 	};
-	return [tsLoader, fileLoader, css];
+	const fonts = {
+		test: /\.(woff|woff2|ttf|eot|otf)$/i,
+		type: 'asset/resource',
+		exclude: /node_modules/,		
+	  }
+	return [tsLoader, fileLoader, css, fonts];
 }

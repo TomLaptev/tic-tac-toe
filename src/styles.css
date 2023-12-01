@@ -2,3 +2,17 @@
     margin: 0;
     padding: 0;
 }
+
+body{
+   
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background: #F5F5F5; 
+}
+ 
+.fontPreload {
+    font-family: "NautilusPompilius";
+   position: absolute; 
+    left: -100px;
+}

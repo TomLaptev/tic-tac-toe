@@ -3,13 +3,103 @@
     "files": [
       {
         "type": "image",
-        "key": "background",
-        "url": "./assets/images/background.jpg"
+        "key": "background_h",
+        "url": "./assets/images/background_h.jpg"
       },
       {
         "type": "image",
-        "key": "cellEmpty",
-        "url": "./assets/images/cellEmpty.jpg"
+        "key": "background_v",
+        "url": "./assets/images/background_v.jpg"
+      },
+      {
+        "type": "image",
+        "key": "Neptune",
+        "url": "./assets/images/Neptune.png"
+      },
+      {
+        "type": "image",
+        "key": "board",
+        "url": "./assets/images/board.png"
+      },
+      {
+        "type": "image",
+        "key": "button",
+        "url": "./assets/images/button.png"
+      }, 
+      {
+        "type": "image",
+        "key": "buttonFree",
+        "url": "./assets/images/buttonFree.png"
+      },
+      {
+        "type": "image",
+        "key": "buttonLang",
+        "url": "./assets/images/buttonLang.png"
+      },
+      {
+        "type": "image",
+        "key": "buttonSound",
+        "url": "./assets/images/buttonSound.png"
+      },
+      {
+        "type": "image",
+        "key": "star",
+        "url": "./assets/images/star.png"
+      }, 
+      {
+        "type": "image",
+        "key": "buttonHome",
+        "url": "./assets/images/buttonHome.png"
+      },
+      {
+        "type": "image",
+        "key": "play",
+        "url": "./assets/images/play.png"
+      },
+      {
+        "type": "image",
+        "key": "buttonMenu",
+        "url": "./assets/images/buttonMenu.png"
+      },
+      {
+        "type": "image",
+        "key": "left",
+        "url": "./assets/images/left.png"
+      },
+      {
+        "type": "image",
+        "key": "right",
+        "url": "./assets/images/right.png"
+      },
+      {
+        "type": "image",
+        "key": "down",
+        "url": "./assets/images/down.png"
+      },
+      {
+        "type": "image",
+        "key": "up",
+        "url": "./assets/images/up.png"
+      },
+      {
+        "type": "image",
+        "key": "enter",
+        "url": "./assets/images/enter.png"
+      },
+      {
+        "type": "image",
+        "key": "cellFree",
+        "url": "./assets/images/cellFree.jpg"
+      },
+      {
+        "type": "image",
+        "key": "pointer",
+        "url": "./assets/images/pointer.png"
+      },
+      {
+        "type": "image",
+        "key": "contour",
+        "url": "./assets/images/contour.png"
       },
       {
         "type": "image",

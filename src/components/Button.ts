@@ -1,30 +1,51 @@
 export default class Button {
+	private buttonContainer: Phaser.GameObjects.Container;
+
 	constructor(
 		scene: Phaser.Scene,
 		x: number,
 		y: number,
-		width: number,
-		height: number,
+		width: number | null,
+		height: number | null,
 		fontColor: string,
-		texture: string,
-		hoverTexture: string,
-		text: string,
-		callback: () => void
+		texture: string | null,
+		font: string,
+		fontSize: number,
+		text: string | null,
+		callback: () => void 
 	) {
-		const buttonText = scene.add.text(0, 0, text).setInteractive({ useHandCursor: true });
-		const buttonImage = scene.add
-			.image(x, y, 'ui', texture)
-			.setOrigin(0)
-			.setInteractive({ useHandCursor: true });
-		buttonImage.scale = 0.4;
+		const buttonText = text ? scene.add
+			.text(0, 0, text, { font: `${fontSize}px ${font}`, color: fontColor })
+			.setColor(fontColor)
+			.setOrigin(0.5) : null;
+		const buttonImage = texture ? scene.add.image(0, 0, texture) : null;
 
-		const buttonContainer = scene.add.container(x, y, [buttonImage, buttonText]);
+		//const containerObjects: Phaser.GameObjects.GameObject[] = [];
 
-		buttonContainer
-			.on('pointerdown', () => callback())
-			.on('pointerover', () => {})
-			.on('pointerout', () => {});
 
-		scene.input.setHitArea(buttonContainer).on('gameobjectdown', callback, scene);
+		this.buttonContainer = scene.add.container(x, y);
+
+		if (buttonImage) {
+			this.buttonContainer.add(buttonImage)
+		}
+
+		if (buttonText) {
+			this.buttonContainer.add(buttonText)
+		}
+
+		this.buttonContainer
+			.setSize(buttonImage ? buttonImage.displayWidth : width || 1,
+				buttonImage ? buttonImage.displayHeight : height || 1)
+			.setInteractive({ cursor: "pointer" });
+		this.buttonContainer
+			.on('pointerdown', function () {
+				callback();
+			})
+			.on('pointerover', () => { })
+			.on('pointerout', () => { });
+	}
+
+	get container() {
+		return this.buttonContainer;
 	}
 }

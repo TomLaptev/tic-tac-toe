@@ -1,33 +1,48 @@
-import { GameConfig, defaultSettings } from '../GameConfig';
+import { GameConfig, Source } from '../GameConfig';
 import { GameScene } from '../scenes/GameScene';
 import { Images } from '../utils/const';
+import GA from './GA';
 import Cell from './Cell';
 
 export default class Board {
 	scene: GameScene;
 
+	offsetX:number ;
+	offsetY: number;
+	GA: Cell[];
+
 	constructor(scene: GameScene) {
 		this.scene = scene;
+
+		this.scene.input.on(
+			'gameobjectdown',
+			function (pointer: Phaser.Input.Pointer, gameObject: Cell) {
+				gameObject.emit('clickCell', gameObject);
+			},
+			this
+		);
 	}
 
 	public drawBoard(): void {
+		
 		this.createCells();
 	}
 
-	private getCellsPositions(): Array<{ x: number; y: number }> {
-		const positions = [];
-		const { borderSize } = defaultSettings;
-		const cellTexure = this.scene.game.textures.get(Images.CELL_EMPTY).getSourceImage();
-		const sellWidth = cellTexure.width;
-		const sellHeight = cellTexure.height;
-		const offsetX = (+GameConfig.width - sellWidth * borderSize) / 2;
-		const offsetY = (+GameConfig.height - sellHeight * borderSize) / 2 + sellHeight * 1;
+	private getCellsPositions() {
+		let positions = [];
+		this.offsetX = (+GameConfig.width - Source.cellWidth * Source.cols) / 2;
 
-		for (let row = 0; row < defaultSettings.borderSize; row++) {
-			for (let col = 0; col < defaultSettings.borderSize; col++) {
+		if (window.innerWidth > window.innerHeight) {
+		this.offsetY = (+GameConfig.height - Source.cellHeight * Source.rows) / 2 + Source.cellHeight;
+		} else {
+			this.offsetY = (+GameConfig.height - Source.cellHeight * Source.rows) / 2 - 2 * Source.cellHeight;
+		}
+
+		for (let row = 0; row < Source.rows; row++) {
+			for (let col = 0; col < Source.cols; col++) {
 				positions.push({
-					x: offsetX + col * sellWidth,
-					y: offsetY + row * sellHeight,
+					x: this.offsetX + col * Source.cellWidth,
+					y: this.offsetY + row * Source.cellHeight,
 				});
 			}
 		}
@@ -35,25 +50,25 @@ export default class Board {
 	}
 
 	private createCells(): void {
-		const positions = this.getCellsPositions();
+		let positions = this.getCellsPositions();
 
 		for (let i = 0; i < positions.length; i++) {
-			this.scene.cells.push(new Cell(this.scene, positions[i], Images.CELL_EMPTY, i));
+			this.scene.cells[i] = 
+			new Cell(
+				this.scene, 
+				positions[i], 
+				Images.CELL_FREE, 
+				i,
+				this.handleCellClick
+				);
+			this.scene.cells[i].value = -1; //Отмечаем закрытые(свободные) ячейки
 		}
-		const cellsGroup = this.scene.add.group(this.scene.cells);
-		this.scene.input
-			.setHitArea(cellsGroup.getChildren())
-			.on('gameobjectdown', this.handleCellClick.bind(this), this.scene);
 	}
-
-	private handleCellClick(
-		pointer: Phaser.Input.Pointer,
-		cell: Cell,
-		event: Phaser.Types.Input.EventData
-	): void {
-		if (cell.value !== null) {
+	private handleCellClick(cell: any): void {
+		if (cell.value !== -1) {
 			return;
 		}
-		this.scene.AI.setBoard(+cell.id);
+		this.scene.GA.onCellClicked(cell);
+		
 	}
 }

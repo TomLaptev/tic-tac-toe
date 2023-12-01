@@ -1,3 +1,4 @@
+import { Images } from '../utils/const';
 export class BootScene extends Phaser.Scene {
 	private loadingBar: Phaser.GameObjects.Graphics;
 	private progressBar: Phaser.GameObjects.Graphics;
@@ -7,10 +8,7 @@ export class BootScene extends Phaser.Scene {
 			key: 'BootScene',
 		});
 	}
-
 	preload(): void {
-		// set the background and create loading bar
-		this.cameras.main.setBackgroundColor(0x98d687);
 		this.createLoadingbar();
 
 		// pass value to change the loading bar fill
@@ -39,18 +37,15 @@ export class BootScene extends Phaser.Scene {
 			},
 			this
 		);
-
-		// load out package
 		this.load.pack('preload', './assets/pack.json', 'preload');
-		this.load.unityAtlas(
-			'ui',
-			'./assets/images/atlas/spriteUI.png',
-			'./assets/images/atlas/spriteUI.png.meta'
-		);
+		
 	}
 
-	create() {
-		this.scene.start('GameScene');
+	create(): void {
+		if (window.innerWidth > window.innerHeight) {
+			this.add.sprite(0, 0, Images.BACKGROUND_H).setOrigin(0, 0);
+		} else this.add.sprite(0, 0, Images.BACKGROUND_V).setOrigin(0, 0);
+		this.scene.start('Start');
 	}
 
 	private createLoadingbar(): void {

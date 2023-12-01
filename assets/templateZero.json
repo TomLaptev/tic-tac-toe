@@ -1,0 +1,144 @@
+[
+  {
+    "arr": [-16, -15, -14, -1, 1, 14, 15, 16]
+  },
+  {
+    "arr": [-16, -15, -14, -1, 1, 14, 15, 16, -32, -30, -28, -2, 2, 28, 30, 32]
+  }, 
+  {
+    "arr": [0, 0, 0, 0, 0],
+    "attackWeight": 50000,
+    "protectionWeight": 30000
+  },
+  {
+    "arr": [-1, 0, 0, 0, 0, -1],
+    "attackWeight": 24000,
+    "protectionWeight": 12000
+  },
+
+  {
+    "arr": [-1, 0, 0, 0, 0],
+    "attackWeight": 15000,
+    "protectionWeight": 7500
+  },
+
+  {
+    "arr": [0, -1, 0, 0, 0],
+    "attackWeight": 15000,
+    "protectionWeight": 7500
+  },
+
+  {
+    "arr": [0, 0, -1, 0, 0],
+    "attackWeight": 15000,
+    "protectionWeight": 7500
+  },
+
+  {
+    "arr": [0, 0, 0, -1, 0],
+     "attackWeight": 15000,
+    "protectionWeight": 7500
+  },
+
+  {
+    "arr": [0, 0, 0, 0, -1],
+    "attackWeight": 15000,
+    "protectionWeight": 7500
+  },
+
+  {
+    "arr": [-1, -1, 0, 0, 0, -1],
+    "attackWeight": 6000,
+    "protectionWeight": 2450
+  },
+
+  {
+    "arr": [-1, 0, -1, 0, 0, -1],
+     "attackWeight": 6000,
+    "protectionWeight": 2400
+  },
+
+  {
+    "arr": [-1, 0, 0, -1, 0, -1],
+    "attackWeight": 6000,
+    "protectionWeight": 2400
+  },
+
+  {
+    "arr": [-1, 0, 0, 0, -1, -1],
+    "attackWeight": 6000,
+    "protectionWeight": 2450
+  },
+
+  {
+    "arr": [-1, 0, 0, -1, -1, -1],
+    "attackWeight": 1800,
+    "protectionWeight": 600
+  },
+
+  {
+    "arr": [-1, 0, -1, 0, -1, -1],
+    "attackWeight": 1800,
+    "protectionWeight": 600
+  },
+
+  {
+    "arr": [-1, 0, -1, -1, 0, -1],
+    "attackWeight": 1800,
+    "protectionWeight": 600
+  },
+
+  {
+    "arr": [-1, -1, 0, 0, -1, -1],
+     "attackWeight": 1800,
+    "protectionWeight": 600
+  },
+
+  {
+    "arr": [-1, -1, 0, -1, 0, -1],
+    "attackWeight": 1800,
+    "protectionWeight": 600
+  },
+
+  {
+    "arr": [-1, -1, -1, 0, 0, -1],
+     "attackWeight": 1800,
+    "protectionWeight": 600
+  },
+  {
+    "arr": [0, 0, 0, -1, -1],
+    "attackWeight": 1000,
+    "protectionWeight": 500
+  },
+
+  {
+    "arr": [0, 0, -1, 0, -1],
+     "attackWeight": 1000,
+    "protectionWeight": 500
+  },
+
+  {
+    "arr": [0, -1, 0, 0, -1],
+    "attackWeight": 1000,
+    "protectionWeight": 500
+  },
+
+  {
+    "arr": [-1, -1, 0, 0, 0],
+    "attackWeight": 1000,
+    "protectionWeight": 500
+  },
+
+  {
+    "arr": [-1, 0, -1, 0, 0],
+    "attackWeight": 1000,
+    "protectionWeight": 500
+  },
+
+  {
+    "arr": [-1, 0, 0, -1, 0],
+    "attackWeight": 1000,
+    "protectionWeight": 500
+  }
+
+]
