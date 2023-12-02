@@ -11,7 +11,8 @@ export class GameScene extends Phaser.Scene {
 	CONTROL: GameSceneControl = null;	
 	cells: Cell[] = [];
 	pointer: any;
-	btn0WasPressed: boolean = false;
+	btnXWasPressed: boolean = true;
+	btnZeroWasPressed: boolean = false;
 	isRu: boolean; 
 	constructor() {
 		super({
@@ -26,9 +27,6 @@ export class GameScene extends Phaser.Scene {
 		this.createPointer();
 		this.CONTROL = new GameSceneControl(this)
 		this.GA = new GameAlgoritm(this)
-
-		// this.templX = templateX
-		// this.templZero = templateZero
 		this.isRu = storage.language !== 'ru';
 	}
 

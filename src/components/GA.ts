@@ -26,7 +26,7 @@ export default class GameAlgoritm {
     maxAttackMadeMovesR: number;
     isFinish: boolean = false;
     templX: any = templateX;
-	templZero: any = templateZero;
+    templZero: any = templateZero;
 
     constructor(scene: GameScene) {
         this.scene = scene;
@@ -35,8 +35,7 @@ export default class GameAlgoritm {
 
     onCellClicked(cell: Cell) {
         if (
-            !this.isFinish &&
-            cell.value === -1
+            !this.isFinish
         ) {
             this.scene.pointer.destroy();
             //для крестика "обесцвечиваем" предыдущий нолик
@@ -47,8 +46,14 @@ export default class GameAlgoritm {
                         .setOrigin(0, 0);
                 }
                 this.scene.add.sprite(cell.x, cell.y, Images.CELL_X_HIGHLIGHTED).setOrigin(0, 0);
-                cell.value = 1;
-                this.cellsR.push(cell);
+                if (this.scene.btnXWasPressed) {
+                    cell.value = 1;
+                    this.cellsR.push(cell);
+                } else if (this.scene.btnZeroWasPressed) {
+                    cell.value = 0;
+                    this.cellsGA.push(cell);
+                }
+
             } else {
                 //для нолика "обесцвечиваем" предыдущий крестик
                 if (this.store.length % 2) {
@@ -58,8 +63,15 @@ export default class GameAlgoritm {
                 }
 
                 this.scene.add.sprite(cell.x, cell.y, Images.CELL_ZERO_HIGHLIGHTED).setOrigin(0, 0);
-                cell.value = 0;
-                this.cellsGA.push(cell);
+                // cell.value = 0;
+                // this.cellsGA.push(cell);
+                if (this.scene.btnXWasPressed) {
+                    cell.value = 0;
+                    this.cellsGA.push(cell);
+                } else if (this.scene.btnZeroWasPressed) {
+                    cell.value = 1;
+                    this.cellsR.push(cell);
+                }
             }
             this.store.push(cell);
             this.scene.createPointer();
@@ -76,7 +88,12 @@ export default class GameAlgoritm {
             let winLine = [];
             let count: number;
             let symbol: any = cell.value;
-            symbol == 1 ? (symbol = Images.CELL_X_HIGHLIGHTED) : (symbol = Images.CELL_ZERO_HIGHLIGHTED);
+            if (this.scene.btnXWasPressed) {
+                symbol == 1 ? (symbol = Images.CELL_X_HIGHLIGHTED) : (symbol = Images.CELL_ZERO_HIGHLIGHTED);
+            }
+            else if (this.scene.btnZeroWasPressed) {
+                symbol == 0 ? (symbol = Images.CELL_X_HIGHLIGHTED) : (symbol = Images.CELL_ZERO_HIGHLIGHTED);
+            }
             for (let i = 1; i < testWinKit.length; i++) {
                 outer: while (testWinKit[i].length >= 5) {
                     winLine.length = 0;
@@ -112,9 +129,9 @@ export default class GameAlgoritm {
         }
         //====================================
 
-        if (!this.isFinish && this.store.length > 0) {
+        if (!this.isFinish && this.scene.btnXWasPressed && this.store.length > 0) {
             this.scene.GA.chooseFirstStepGA();
-        }
+        } else this.scene.GA.chooseStepGA();
     }
     chooseFirstStepGA() {
         let correctionX: number = 0;
@@ -148,7 +165,7 @@ export default class GameAlgoritm {
             additiveY = Source.cols;
         }
 
-        if (this.store.length === 1 && !this.scene.btn0WasPressed) {
+        if (this.store.length === 1 && !this.scene.btnZeroWasPressed) {
             indexPosition =
                 this.store.at(-1).id +
                 correctionY * (Source.cols + additiveY) +
@@ -167,10 +184,7 @@ export default class GameAlgoritm {
         this.testKitR.length = 0;
         let maxAttackMadeMovesR: number = 0; // номер выбранной ячейки в массиве this.cellsR
 
-        if (
-            this.store.length >= 2 &&
-            !this.scene.btn0WasPressed
-        ) {
+        if (this.store.length > 1 && !this.isFinish) {
 
             //Собираем все свободные ячейки возможных ходов ИА для создания проверочных массивов в this.cellsFieldGA
             this.createCellsField(this.cellsGA, this.cellsFieldGA);
@@ -201,54 +215,54 @@ export default class GameAlgoritm {
                     if (this.cellsR[i].z > Max) {
                         Max = this.cellsR[i].z;
                         maxAttackMadeMovesR = i;
-                    } //else maxAttackMadeMovesR = 0;
+                    } 
                 }
             }
-        }
-        // 	//=============================== end =========================================
-        if (
-            this.cellsR.length &&
-            this.sampleR.length &&
-            maxAttackMadeMovesR >= 0
-        ) {
-            console.log(this.sampleGA[0].w + "  " + this.sampleGA[0].id);
-            console.log(this.sampleR[0].z + "  " + this.sampleR[0].id);
-            console.log(
-                this.cellsR[maxAttackMadeMovesR].z + " " + this.sampleR[0].id
-            );
-        }
-        console.log("======================================= ");
-        //============= АИ ходит вторым. Выбор хода ====== start ===========
-        if (this.store.at(-1).value === 1) {
-            if (maxAttackMadeMovesR >= 0) {
-                if (
-                    this.sampleGA[0].w >= this.templX[2].attackWeight || // 5!
-                    (this.sampleGA[0].w >=
-                        this.templX[4].attackWeight +
-                        this.templX[19].attackWeight && //закр.4 + откр.3
-                        this.cellsR[maxAttackMadeMovesR].z <
-                        (this.templX[4].protectionWeight || //закр.4
-                            this.sampleR[0].z < this.templX[3].protectionWeight)) || //откр.4
-                    (this.sampleGA[0].w >= this.templX[10].attackWeight && //откр.3
-                        this.cellsR[maxAttackMadeMovesR].z <
-                        this.templX[10].protectionWeight && // откр.3
-                        this.sampleR[0].z <
-                        this.templX[5].protectionWeight +
-                        this.templX[10].protectionWeight) || //закр.4 + откр.3
-                    this.cellsR[maxAttackMadeMovesR].z <=
-                    this.templX[20].protectionWeight
-                ) {
-                    console.log("атака");
-                    this.onCellClicked(this.scene.cells[this.sampleGA[ /*0 */this.bestGA].id]);
-                } else {
-                    console.log("защита");
-                    this.onCellClicked(this.scene.cells[this.sampleR[0 /* this.bestR */].id]);
+
+            // 	//=============================== end =========================================
+            if (
+                this.cellsR.length &&
+                this.sampleR.length &&
+                maxAttackMadeMovesR >= 0
+            ) {
+                console.log(this.sampleGA[0].w + "  " + this.sampleGA[0].id);
+                console.log(this.sampleR[0].z + "  " + this.sampleR[0].id);
+                console.log(
+                    this.cellsR[maxAttackMadeMovesR].z + " " + this.cellsR[maxAttackMadeMovesR].id
+                );
+            }
+            console.log("=============== ");
+            // =====Выбор хода ====== start ===========
+            if (this.store.length > 1 && this.store.at(-1).value === 1) {
+                console.log(123)
+                if (maxAttackMadeMovesR >= 0) {
+                    if (
+                        this.sampleGA[0].w >= this.templX[2].attackWeight || // 5!
+                        (this.sampleGA[0].w >=
+                            this.templX[4].attackWeight +
+                            this.templX[19].attackWeight && //закр.4 + откр.3
+                            this.cellsR[maxAttackMadeMovesR].z <
+                            (this.templX[4].protectionWeight || //закр.4
+                                this.sampleR[0].z < this.templX[3].protectionWeight)) || //откр.4
+                        (this.sampleGA[0].w >= this.templX[10].attackWeight && //откр.3
+                            this.cellsR[maxAttackMadeMovesR].z <
+                            this.templX[10].protectionWeight && // откр.3
+                            this.sampleR[0].z <
+                            this.templX[5].protectionWeight +
+                            this.templX[10].protectionWeight) || //закр.4 + откр.3
+                        this.cellsR[maxAttackMadeMovesR].z <=
+                        this.templX[20].protectionWeight
+                    ) {
+                        console.log("атака");
+                        this.onCellClicked(this.scene.cells[this.sampleGA[ /*0 */this.bestGA].id]);
+                    } else {
+                        console.log("защита");
+                        this.onCellClicked(this.scene.cells[this.sampleR[0 /* this.bestR */].id]);
+                    }
                 }
             }
         }
     }
-    //=========================== end ===================================
-
 
     getBestAttackGA() {
         let index: number = 0;
@@ -265,6 +279,7 @@ export default class GameAlgoritm {
             }
             this.sampleGA.push(field[index]);
             field.splice(index, 1);
+
         }
         this.bestGA = 0;
         max = 0;

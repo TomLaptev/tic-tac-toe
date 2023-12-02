@@ -1,7 +1,6 @@
 import { GameConfig, Source } from '../GameConfig';
 import { GameScene } from '../scenes/GameScene';
 import { Images } from '../utils/const';
-import GA from './GA';
 import Cell from './Cell';
 
 export default class Board {

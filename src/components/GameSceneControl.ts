@@ -109,11 +109,12 @@ export default class GameSceneControl {
             Images.CONTOUR,
             'NautilusPompilius',
             30,
-            !this.isRu ? 'Ваш ход' : 'Your move',
+            !this.isRu ? 'начинаете Вы' : 'You start',
             () => {
                 this.scene.scene.restart();
                 this.scene.GA.store.length = 0;
-                this.scene.btn0WasPressed = false;
+                this.scene.btnXWasPressed = true;
+                this.scene.btnZeroWasPressed = false;
                 this.scene.GA.isFinish = false;
                 this.scene.cells.length = 0;
             }
@@ -128,17 +129,16 @@ export default class GameSceneControl {
             Images.CONTOUR,
             'NautilusPompilius',
             30,
-            !this.isRu ? 'ход компьютера' : 'computers move',
+            !this.isRu ? 'начинает компьютер' : 'computers first move',
             () => {
                 let centralCell = Math.floor(this.scene.cells.length / 2);
-                this.scene.scene.restart();
                 this.scene.GA.store.length = 0;
-                this.scene.btn0WasPressed = false;
                 this.scene.GA.isFinish = false;
                 this.scene.cells.length = 0;
-                this.scene.btn0WasPressed = true;
+                this.scene.btnZeroWasPressed = true;
+                this.scene.btnXWasPressed = false;
                 this.scene.BOARD.drawBoard();
-               // this.scene.onCellClicked(this.scene.cells[centralCell]);
+                this.scene.GA.onCellClicked(this.scene.cells[centralCell]);
             }
         );
 
@@ -152,8 +152,9 @@ export default class GameSceneControl {
             () => {
                 this.scene.scene.restart();
                 this.scene.GA.store.length = 0;
-                this.scene.btn0WasPressed = false;
                 this.scene.GA.isFinish = false;
+                this.scene.btnXWasPressed = true;
+                this.scene.btnZeroWasPressed = false;
                 this.scene.cells.length = 0;
 		        this.scene.scene.start("Start");
             }

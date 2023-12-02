@@ -29,8 +29,6 @@ export class StartScene extends Phaser.Scene {
 		this.createBackground();
 		this.createNameGame();
 		this.createMainMenu();
-		console.log(this.cameras.main.centerX)
-		console.log(window.innerWidth/2)
 	};
 
 	createBackground() {
@@ -45,7 +43,6 @@ export class StartScene extends Phaser.Scene {
 				Images.NEPTUNE
 			)
 			.setOrigin(0, 0);
-console.log(this.cameras.main.centerX)
 		this.add
 			.sprite(
 				this.cameras.main.centerX - 70,
